@@ -16,9 +16,14 @@ class NotesApp extends StatefulWidget {
 class _NotesAppState extends State<NotesApp> {
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       title: 'notes app',
-      home: HomePage(),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const HomePage(),
+        '/NoteView': (context) => const NoteView(),
+        '/NoteAdd': (context) => const NoteAdd(),
+      },
     );
   }
 }

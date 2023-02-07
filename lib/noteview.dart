@@ -24,7 +24,7 @@ class _NoteViewState extends State<NoteView> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => setState(() {
-          notes.add(Note(heading: 'sad', text: 'asd'));
+          newnote(context);
         }),
         tooltip: 'add Note',
         child: const Icon(Icons.add),
@@ -43,14 +43,33 @@ class _NoteViewState extends State<NoteView> {
       ),
     );
   }
+
+  Future<void> newnote(BuildContext context) async {
+    var result = await Navigator.pushNamed(context, '/NoteAdd');
+    if (!mounted) return;
+    print(result);
+    if (result != null) {
+      setState(() {
+        notes.add(Note(
+          heading: (result as Map)['head'],
+          text: (result as Map)['text'],
+        ));
+      });
+    }
+  }
 }
 
-class Note extends StatelessWidget {
-  const Note({super.key, required this.heading, required this.text});
+class Note extends StatefulWidget {
+  Note({super.key, this.heading = '', this.text = ''});
 
-  final String heading;
-  final String text;
+  String heading;
+  String text;
 
+  @override
+  State<Note> createState() => _NoteState();
+}
+
+class _NoteState extends State<Note> {
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -71,19 +90,77 @@ class Note extends StatelessWidget {
               width: double.infinity,
               padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
               child: Text(
-                heading,
+                widget.heading,
                 style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
               ),
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
               child: Text(
-                text,
+                widget.text,
                 style: TextStyle(fontSize: 20),
               ),
             )
           ],
         ),
+      ),
+    );
+  }
+}
+
+class NoteAdd extends StatefulWidget {
+  const NoteAdd({super.key});
+
+  @override
+  State<NoteAdd> createState() => _NoteAddState();
+}
+
+class _NoteAddState extends State<NoteAdd> {
+  Note note = Note(
+    heading: '',
+    text: '',
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('add'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(8.0, 0, 8.0, 10),
+              child: TextField(
+                decoration: const InputDecoration(
+                  border: UnderlineInputBorder(),
+                  hintText: 'title',
+                ),
+                onChanged: (text) {
+                  note.heading = text;
+                },
+              ),
+            ),
+            TextField(
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                hintText: 'text...',
+              ),
+              onChanged: (text) {
+                note.text = text;
+              },
+            ),
+          ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => setState(() {
+          Navigator.pop(context, {'head': note.heading, 'text': note.text});
+        }),
+        tooltip: 'save Note',
+        child: const Icon(Icons.save),
       ),
     );
   }
