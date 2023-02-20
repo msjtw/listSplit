@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'noteview.dart';
 import 'spendingview.dart';
+import 'shoppinglist.dart';
 
 void main() {
   runApp(NotesApp());
@@ -23,6 +24,7 @@ class _NotesAppState extends State<NotesApp> {
         '/': (context) => const HomePage(),
         '/NoteView': (context) => const NoteView(),
         '/NoteAdd': (context) => const NoteAdd(),
+        '/ShoppingListView': (context) => ShoppingListView(),
       },
     );
   }
@@ -39,7 +41,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: NoteView(),
+      child: ShoppingListView(),
     );
   }
 }

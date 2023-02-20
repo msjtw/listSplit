@@ -51,8 +51,8 @@ class _NoteViewState extends State<NoteView> {
     if (result != null) {
       setState(() {
         notes.add(Note(
-          heading: (result as Map)['head'],
-          text: (result as Map)['text'],
+          title: (result as Map)['head'],
+          description: (result as Map)['description'],
         ));
       });
     }
@@ -60,10 +60,10 @@ class _NoteViewState extends State<NoteView> {
 }
 
 class Note extends StatefulWidget {
-  Note({super.key, this.heading = '', this.text = ''});
+  Note({super.key, this.title = '', this.description = ''});
 
-  String heading;
-  String text;
+  String title;
+  String description;
 
   @override
   State<Note> createState() => _NoteState();
@@ -90,14 +90,14 @@ class _NoteState extends State<Note> {
               width: double.infinity,
               padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
               child: Text(
-                widget.heading,
+                widget.title,
                 style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
               ),
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
               child: Text(
-                widget.text,
+                widget.description,
                 style: TextStyle(fontSize: 20),
               ),
             )
@@ -117,8 +117,8 @@ class NoteAdd extends StatefulWidget {
 
 class _NoteAddState extends State<NoteAdd> {
   Note note = Note(
-    heading: '',
-    text: '',
+    title: '',
+    description: '',
   );
 
   @override
@@ -139,7 +139,7 @@ class _NoteAddState extends State<NoteAdd> {
                   hintText: 'title',
                 ),
                 onChanged: (text) {
-                  note.heading = text;
+                  note.title = text;
                 },
               ),
             ),
@@ -149,7 +149,7 @@ class _NoteAddState extends State<NoteAdd> {
                 hintText: 'text...',
               ),
               onChanged: (text) {
-                note.text = text;
+                note.description = text;
               },
             ),
           ],
@@ -157,7 +157,7 @@ class _NoteAddState extends State<NoteAdd> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => setState(() {
-          Navigator.pop(context, {'head': note.heading, 'text': note.text});
+          Navigator.pop(context, {'head': note.title, 'text': note.description});
         }),
         tooltip: 'save Note',
         child: const Icon(Icons.save),
