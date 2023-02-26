@@ -29,9 +29,10 @@ class _ShoppingListViewState extends State<ShoppingListView> {
               ],
             ),
             onTap: () {
-              print('cliced note $index');
-              Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => widget.lists[index]));
+              Navigator.of(context)
+                  .push(MaterialPageRoute(
+                      builder: (context) => widget.lists[index]))
+                  .then((_) => setState(() {}));
             },
           );
         },
@@ -42,9 +43,9 @@ class _ShoppingListViewState extends State<ShoppingListView> {
             widget.lists.add(ShoppingList(
                 widget.listId, 'New shopping list ${widget.listId}', []));
           });
-          print(widget.listId);
           Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => widget.lists.last));
+              .push(MaterialPageRoute(builder: (context) => widget.lists.last))
+              .then((_) => setState(() {}));
           widget.listId++;
         },
         label: const Text('New List'),
@@ -61,12 +62,24 @@ class Thing {
   Thing(this.id, this.name, this.bought);
 }
 
+class PastShopping {
+  int id = 0;
+  String name = "";
+  int time = 0;
+  List<String> users = [];
+  List<Thing> things = [];
+  int cost = 0;
+
+  PastShopping(this.id, this.name, this.time, this.cost, this.things);
+}
+
 class ShoppingList extends StatefulWidget {
   List<Thing> things = [];
   int id = 0;
   String name = "New shopping list";
   String description = "add description";
   bool archived = false;
+  bool edit = false;
 
   ShoppingList(this.id, this.name, this.things, {super.key});
 
@@ -75,33 +88,75 @@ class ShoppingList extends StatefulWidget {
 }
 
 class _ShoppingListState extends State<ShoppingList> {
+  var _newThingController = TextEditingController();
+  var _descriptionChangeController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.name),
       ),
-      body: Column(
-        children: [
-          Text(widget.description),
-          Expanded(
-            child: ListView.builder(
-              itemCount: widget.things.length,
-              itemBuilder: (BuildContext context, int index) {
-                return Text(
-                  widget.things[index].name,
-                  style: TextStyle(
-                    decoration: (widget.things[index].bought
-                        ? TextDecoration.lineThrough
-                        : TextDecoration.none),
-                  ),
-                );
-              },
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            GestureDetector(
+              onTap: () => _descriptionChange(context),
+              child: Text(widget.description),
             ),
-          )
-        ],
+            Expanded(
+              child: ListView.builder(
+                itemCount: widget.things.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return Text(widget.things[index].name);
+                },
+              ),
+            ),
+            TextField(
+              controller: _newThingController,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                hintText: 'add new thing',
+              ),
+              onSubmitted: (String text) {
+                print(text);
+                setState(() {
+                  widget.things.add(Thing(1, text, false));
+                });
+                _newThingController.clear();
+              },
+            )
+          ],
+        ),
       ),
     );
+  }
+
+  Future<void> _descriptionChange(BuildContext context) async {
+    if (widget.description != 'add description') {
+      _descriptionChangeController.text = widget.description;
+    } else {
+      _descriptionChangeController.clear();
+    }
+
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Change description'),
+            content: TextField(
+              controller: _descriptionChangeController,
+              decoration: InputDecoration(hintText: "add description"),
+              onSubmitted: (newDescription) {
+                setState(() {
+                  widget.description = newDescription;
+                  Navigator.pop(context);
+                });
+              },
+            ),
+          );
+        });
   }
 }
 
@@ -119,16 +174,30 @@ class _ShoppingListEditState extends State<ShoppingListEdit> {
   }
 }
 
-class ShoppingListAddThings extends StatefulWidget {
-  const ShoppingListAddThings({super.key});
+// Column(
+//         children: [
+//           Text(widget.description),
+//           Expanded(
+//             child: ListView.builder(
+//               itemCount: widget.things.length,
+//               itemBuilder: (BuildContext context, int index) {
+//                 return Text(
+//                   widget.things[index].name,
+//                   style: TextStyle(
+//                     decoration: (widget.things[index].bought
+//                         ? TextDecoration.lineThrough
+//                         : TextDecoration.none),
+//                   ),
+//                 );
+//               },
+//             ),
+//           )
+//         ],
+//       ),
 
-  @override
-  State<ShoppingListAddThings> createState() => _ShoppingListAddThingsState();
-}
-
-class _ShoppingListAddThingsState extends State<ShoppingListAddThings> {
-  @override
-  Widget build(BuildContext context) {
-    return const Placeholder();
-  }
-}
+// floatingActionButton: FloatingActionButton(
+//         onPressed: () {
+//           setState(() => widget.edit = true);
+//         },
+//         child: Icon(Icons.add),
+//       ),
