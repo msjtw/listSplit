@@ -62,24 +62,16 @@ class Thing {
   Thing(this.id, this.name, this.bought);
 }
 
-class PastShopping {
-  int id = 0;
-  String name = "";
-  int time = 0;
-  List<String> users = [];
-  List<Thing> things = [];
-  int cost = 0;
-
-  PastShopping(this.id, this.name, this.time, this.cost, this.things);
-}
-
 class ShoppingList extends StatefulWidget {
   List<Thing> things = [];
+  List<PastShopping> boughtThings = [];
   int id = 0;
+  int thingId = 0;
+  int pastShoppingId = 0;
   String name = "New shopping list";
   String description = "add description";
   bool archived = false;
-  bool edit = false;
+  int thingEdit = -1;
 
   ShoppingList(this.id, this.name, this.things, {super.key});
 
@@ -88,8 +80,26 @@ class ShoppingList extends StatefulWidget {
 }
 
 class _ShoppingListState extends State<ShoppingList> {
-  var _newThingController = TextEditingController();
-  var _descriptionChangeController = TextEditingController();
+  final _newThingController = TextEditingController();
+  final _descriptionChangeController = TextEditingController();
+
+  late FocusNode _thingEditNode;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _thingEditNode = FocusNode();
+  }
+
+  @override
+  void dispose() {
+    _newThingController.dispose();
+    _descriptionChangeController.dispose();
+    _thingEditNode.dispose();
+
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -109,23 +119,59 @@ class _ShoppingListState extends State<ShoppingList> {
               child: ListView.builder(
                 itemCount: widget.things.length,
                 itemBuilder: (BuildContext context, int index) {
-                  return Text(widget.things[index].name);
+                  return GestureDetector(
+                    onDoubleTap: () {
+                      setState(() {
+                        widget.thingEdit = index;
+                      });
+                      _newThingController.text = widget.things[index].name;
+                      _thingEditNode.requestFocus();
+                    },
+                    child: Text(
+                        '${widget.things[index].id}. ${widget.things[index].name}'),
+                  );
                 },
               ),
             ),
-            TextField(
-              controller: _newThingController,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: 'add new thing',
-              ),
-              onSubmitted: (String text) {
-                print(text);
-                setState(() {
-                  widget.things.add(Thing(1, text, false));
-                });
-                _newThingController.clear();
-              },
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _newThingController,
+                    focusNode: _thingEditNode,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      hintText: 'add new thing',
+                    ),
+                    onSubmitted: (String text) {
+                      setState(() {
+                        if (widget.thingEdit == -1) {
+                          widget.things.add(Thing(widget.thingId, text, false));
+                          widget.thingId++;
+                        } else {
+                          widget.things[widget.thingEdit].name = text;
+                        }
+
+                        widget.thingEdit = -1;
+                      });
+
+                      _newThingController.clear();
+                    },
+                  ),
+                ),
+                (widget.thingEdit != -1
+                    ? IconButton(
+                        onPressed: () {
+                          setState(() {
+                            widget.things.removeAt(widget.thingEdit);
+                          });
+                          FocusScope.of(context).unfocus();
+                          _newThingController.clear();
+                          widget.thingEdit = -1;
+                        },
+                        icon: const Icon(Icons.delete))
+                    : Container(width: 0))
+              ],
             )
           ],
         ),
@@ -160,44 +206,37 @@ class _ShoppingListState extends State<ShoppingList> {
   }
 }
 
-class ShoppingListEdit extends StatefulWidget {
-  const ShoppingListEdit({super.key});
+class PastShopping {
+  int id = 0;
+  String name = "";
+  int time = 0;
+  List<String> users = [];
+  List<Thing> things = [];
+  int cost = 0;
 
-  @override
-  State<ShoppingListEdit> createState() => _ShoppingListEditState();
+  PastShopping(this.id, this.name, this.time, this.cost, this.things);
 }
 
-class _ShoppingListEditState extends State<ShoppingListEdit> {
+class BuyView extends StatefulWidget {
+  List<Thing> things = [];
+  List<Thing> boughtThings = [];
+  List<Thing> leftThings = [];
+  String listName = '';
+  int cost = 0;
+
+  BuyView({super.key});
+
+  @override
+  State<BuyView> createState() => _BuyViewState();
+}
+
+class _BuyViewState extends State<BuyView> {
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('delete things from ${widget.listName}'),
+      ),
+    );
   }
 }
-
-// Column(
-//         children: [
-//           Text(widget.description),
-//           Expanded(
-//             child: ListView.builder(
-//               itemCount: widget.things.length,
-//               itemBuilder: (BuildContext context, int index) {
-//                 return Text(
-//                   widget.things[index].name,
-//                   style: TextStyle(
-//                     decoration: (widget.things[index].bought
-//                         ? TextDecoration.lineThrough
-//                         : TextDecoration.none),
-//                   ),
-//                 );
-//               },
-//             ),
-//           )
-//         ],
-//       ),
-
-// floatingActionButton: FloatingActionButton(
-//         onPressed: () {
-//           setState(() => widget.edit = true);
-//         },
-//         child: Icon(Icons.add),
-//       ),
