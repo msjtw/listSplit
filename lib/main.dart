@@ -1,44 +1,43 @@
 import 'package:flutter/material.dart';
-import 'spendingview.dart';
-import 'shoppinglist.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'views/shoppinglist.dart';
 
 void main() {
-  runApp(NotesApp());
+  runApp(
+    const ProviderScope(
+      child: MyApp(),
+    ),
+  );
 }
 
-class NotesApp extends StatefulWidget {
-  const NotesApp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
-  @override
-  State<NotesApp> createState() => _NotesAppState();
-}
-
-class _NotesAppState extends State<NotesApp> {
+  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'notes app',
+      title: '',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
       initialRoute: '/',
       routes: {
         '/': (context) => const HomePage(),
-        '/ShoppingListView': (context) => ShoppingListView(),
+        //'/ShoppingListView': (context) => ShoppingListView(),
       },
     );
   }
 }
 
-class HomePage extends StatefulWidget {
+class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: ShoppingListView(),
+    return const SafeArea(
+      child: AllListView(),
     );
   }
 }
