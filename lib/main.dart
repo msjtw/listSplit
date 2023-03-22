@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'views/shoppinglist.dart';
+import 'views/alllistview.dart';
 
 void main() {
   runApp(

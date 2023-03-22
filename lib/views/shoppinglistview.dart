@@ -3,52 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../providers/shoppinglistprovider.dart';
 
-class AllListView extends ConsumerWidget {
-  const AllListView({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    List<ShoppingList> shoppingLists = ref.watch(shoppingListsProvider);
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Your shopping lists'),
-      ),
-      body: ListView.builder(
-        itemCount: shoppingLists.length,
-        itemBuilder: (BuildContext context, int index) {
-          return GestureDetector(
-            child: Column(
-              children: [
-                Text(shoppingLists[index].name),
-                Text(shoppingLists[index].description),
-                const SizedBox(height: 10),
-              ],
-            ),
-            onTap: () {
-              Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) =>
-                      ShoppingListView(uuid: shoppingLists[index].uuid)));
-            },
-          );
-        },
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          ref
-              .read(shoppingListsProvider.notifier)
-              .addList(ShoppingList(name: 'new list'));
-          // Navigator.of(context).push(MaterialPageRoute(
-          //     builder: (context) =>
-          //         ShoppingListView(uuid: shoppingLists.last.uuid)));
-        },
-        label: const Text('New List'),
-        icon: const Icon(Icons.add),
-      ),
-    );
-  }
-}
-
 class ShoppingListView extends ConsumerStatefulWidget {
   final String uuid;
 
@@ -86,6 +40,126 @@ class _ShoppingListViewState extends ConsumerState<ShoppingListView> {
 
   @override
   Widget build(BuildContext context) {
+    return showHistory ? historyView(context) : thingView(context);
+  }
+
+  Future<void> _descriptionChange(BuildContext context) async {
+    final ShoppingList list = ref
+        .read(shoppingListsProvider)
+        .where((list) => list.uuid == widget.uuid)
+        .first;
+
+    if (list.description != 'add description') {
+      _descriptionChangeController.text = list.description;
+    } else {
+      _descriptionChangeController.clear();
+    }
+
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Change description'),
+            content: TextField(
+              controller: _descriptionChangeController,
+              decoration: const InputDecoration(hintText: "add description"),
+              onSubmitted: (newDescription) {
+                setState(() {
+                  Navigator.pop(context);
+                  ref
+                      .read(shoppingListsProvider.notifier)
+                      .editList(list.uuid, list.name, newDescription);
+                });
+              },
+            ),
+          );
+        });
+  }
+
+  Future<PastShopping> _getNewShopping(
+      BuildContext context, ShoppingList list, String thingUuid) async {
+    return await Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) =>
+            ShoppingView(list: list, firstThingUuid: thingUuid)));
+  }
+
+  Widget historyView(BuildContext context) {
+    final ShoppingList list = ref
+        .watch(shoppingListsProvider)
+        .where((list) => list.uuid == widget.uuid)
+        .first;
+    return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        title: Text('history of list ${list.name}'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            (list.pastShoppings.isEmpty
+                ? const Expanded(
+                    child:
+                        Center(child: Text('You dont have any past shoppings')))
+                : Expanded(
+                    child: ListView.builder(
+                      itemCount: list.pastShoppings.length,
+                      itemBuilder: (BuildContext context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.all(4),
+                          child: Container(
+                            decoration: const BoxDecoration(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(8)),
+                              color: Colors.limeAccent,
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Column(
+                                children: [
+                                  (list.pastShoppings[index].name == ''
+                                      ? Container(
+                                          height: 0,
+                                        )
+                                      : Text(list.pastShoppings[index].name)),
+                                  Row(
+                                    children: [
+                                      Text(list.pastShoppings[index].time
+                                          .toString()),
+                                      Flexible(child: Container()),
+                                      Text(
+                                          'cost: ${list.pastShoppings[index].cost}')
+                                    ],
+                                  ),
+                                  ListView.builder(
+                                      shrinkWrap: true,
+                                      itemCount: list
+                                          .pastShoppings[index].things.length,
+                                      itemBuilder:
+                                          (BuildContext context, kndex) {
+                                        return Text(list.pastShoppings[index]
+                                            .things[kndex].name);
+                                      })
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  )),
+            IconButton(
+                onPressed: () => setState(() {
+                      showHistory = false;
+                    }),
+                icon: const Icon(Icons.expand_more))
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget thingView(BuildContext context) {
     final ShoppingList list = ref
         .watch(shoppingListsProvider)
         .where((list) => list.uuid == widget.uuid)
@@ -109,7 +183,7 @@ class _ShoppingListViewState extends ConsumerState<ShoppingListView> {
                   itemCount: list.things.length,
                   itemBuilder: (BuildContext context, int index) {
                     return GestureDetector(
-                      onDoubleTap: () {
+                      onLongPress: () {
                         setState(() {
                           editUuid = list.things[index].uuid;
                         });
@@ -119,7 +193,7 @@ class _ShoppingListViewState extends ConsumerState<ShoppingListView> {
                       onHorizontalDragEnd: (details) async {
                         PastShopping shopping = await _getNewShopping(
                             context, list, list.things[index].uuid);
-                        if (shopping.uuid != "") {
+                        if (shopping.uuid != "" && shopping.things.isNotEmpty) {
                           ref
                               .read(shoppingListsProvider.notifier)
                               .addShopping(shopping);
@@ -131,7 +205,7 @@ class _ShoppingListViewState extends ConsumerState<ShoppingListView> {
                         }
                       },
                       child: Text(
-                        '${list.things[index].uuid}. ${list.things[index].name}',
+                        list.things[index].name,
                         style: TextStyle(
                             backgroundColor: (list.things[index].bought
                                 ? Colors.yellow
@@ -198,46 +272,6 @@ class _ShoppingListViewState extends ConsumerState<ShoppingListView> {
       ),
     );
   }
-
-  Future<void> _descriptionChange(BuildContext context) async {
-    final ShoppingList list = ref
-        .read(shoppingListsProvider)
-        .where((list) => list.uuid == widget.uuid)
-        .first;
-
-    if (list.description != 'add description') {
-      _descriptionChangeController.text = list.description;
-    } else {
-      _descriptionChangeController.clear();
-    }
-
-    return showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: const Text('Change description'),
-            content: TextField(
-              controller: _descriptionChangeController,
-              decoration: const InputDecoration(hintText: "add description"),
-              onSubmitted: (newDescription) {
-                setState(() {
-                  Navigator.pop(context);
-                  ref
-                      .read(shoppingListsProvider.notifier)
-                      .editList(list.uuid, list.name, newDescription);
-                });
-              },
-            ),
-          );
-        });
-  }
-
-  Future<PastShopping> _getNewShopping(
-      BuildContext context, ShoppingList list, String thingUuid) async {
-    return await Navigator.of(context).push(MaterialPageRoute(
-        builder: (context) =>
-            ShoppingView(list: list, firstThingUuid: thingUuid)));
-  }
 }
 
 class ShoppingView extends StatefulWidget {
@@ -290,13 +324,20 @@ class _ShoppingViewState extends State<ShoppingView> {
               },
               child: Padding(
                 padding: const EdgeInsets.all(4.0),
-                child: Text(
-                  widget.list.things[index].name,
-                  style: TextStyle(
-                      backgroundColor:
-                          (chosenThings.contains(widget.list.things[index])
-                              ? Colors.yellow
-                              : Colors.transparent)),
+                child: Row(
+                  children: [
+                    chosenThings.contains(widget.list.things[index])
+                        ? Flexible(child: Container())
+                        : Container(),
+                    Text(
+                      widget.list.things[index].name,
+                      style: TextStyle(
+                          backgroundColor:
+                              (chosenThings.contains(widget.list.things[index])
+                                  ? Colors.yellow
+                                  : Colors.transparent)),
+                    ),
+                  ],
                 ),
               ),
             );

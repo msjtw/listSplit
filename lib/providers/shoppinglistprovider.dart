@@ -76,7 +76,7 @@ class PastShopping {
     int? cost,
   })  : uuid = uuid ?? const Uuid().v4(),
         time = time ?? DateTime.now(),
-        name = name ?? DateTime.now().toString(),
+        name = name ?? '',
         cost = cost ?? -1;
 
   PastShopping copyWith(
@@ -168,6 +168,8 @@ class ShoppingListsNotifier extends Notifier<List<ShoppingList>> {
           list
     ];
   }
+
+  void editShopping;
 }
 
 final shoppingListsProvider =
