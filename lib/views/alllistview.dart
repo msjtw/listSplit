@@ -39,8 +39,16 @@ class AllListView extends ConsumerWidget {
                         ),
                       ),
                       const SizedBox(height: 10),
-                      Text(shoppingLists[index].description),
-                      const SizedBox(height: 10),
+                      (shoppingLists[index].description == ''
+                          ? Container(
+                              height: 0,
+                            )
+                          : Column(
+                              children: [
+                                Text(shoppingLists[index].description),
+                                const SizedBox(height: 10),
+                              ],
+                            )),
                       Text(
                           'You have ${shoppingLists[index].things.length} things to buy'),
                     ],
@@ -67,10 +75,16 @@ class AllListView extends ConsumerWidget {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
-          var list = await _nameAndDescriptionChange(context, ref, null);
-          if (list != null) {
-            ref.read(shoppingListsProvider.notifier).addList(list);
-          }
+          _nameAndDescriptionChange(context, ref, null).then(
+            (list) {
+              if (list != null) {
+                ref.read(shoppingListsProvider.notifier).addList(list);
+
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => ShoppingListView(uuid: list.uuid)));
+              }
+            },
+          );
         },
         label: const Text('New List'),
         icon: const Icon(Icons.add),

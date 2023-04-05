@@ -237,7 +237,7 @@ class _ShoppingListViewState extends ConsumerState<ShoppingListView> {
                       setState(() {
                         if (editUuid == "") {
                           ref.read(shoppingListsProvider.notifier).addThing(
-                              list.uuid, Thing(name: text, bought: false));
+                              list.uuid, Thing(listUuid: list.uuid, name: text, bought: false));
                         } else {
                           ref
                               .read(shoppingListsProvider.notifier)
@@ -377,7 +377,7 @@ class _ShoppingViewState extends State<ShoppingView> {
                   ),
                   TextButton(
                     onPressed: () {},
-                    child: const Text('add cost'),
+                    child: const Text('add details'),
                   ),
                 ],
               ),

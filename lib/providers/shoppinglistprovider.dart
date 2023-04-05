@@ -6,18 +6,21 @@ import 'package:uuid/uuid.dart';
 class Thing {
   final String uuid;
   final String name;
+  final String listUuid;
   final bool bought;
 
   Thing({
     required this.name,
     required this.bought,
+    required this.listUuid,
     String? uuid,
   }) : uuid = uuid ?? const Uuid().v4();
 
-  Thing copyWith({String? uuid, String? name, bool? bought}) {
+  Thing copyWith({String? uuid, String? name, String? listUuid, bool? bought}) {
     return Thing(
       uuid: uuid ?? this.uuid,
       name: name ?? this.name,
+      listUuid: listUuid ?? this.listUuid,
       bought: bought ?? this.bought,
     );
   }
@@ -55,6 +58,23 @@ class ShoppingList {
       description: description ?? this.description,
       pastShoppings: pastShoppings ?? this.pastShoppings,
     );
+  }
+
+  ShoppingList.fromMap(Map<String, dynamic> list)
+      : uuid = list['uuid'],
+        things = list['things'],
+        name = list['name'],
+        description = list['description'],
+        pastShoppings = list['pastShoppings'];
+
+  Map<String, dynamic> toMap() {
+    return {
+      'uuid': uuid,
+      'things': things,
+      'name': name,
+      'description': description,
+      'pastShoppings': pastShoppings,
+    };
   }
 }
 

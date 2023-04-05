@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'theme.dart';
 import 'views/alllistview.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  
   runApp(
     const ProviderScope(
       child: MyApp(),
@@ -18,10 +21,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: '',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+      //theme: theme(),
       initialRoute: '/',
       routes: {
         '/': (context) => const HomePage(),

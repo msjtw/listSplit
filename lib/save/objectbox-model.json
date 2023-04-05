@@ -1,0 +1,121 @@
+{
+  "_note1": "KEEP THIS FILE! Check it into a version control system (VCS) like git.",
+  "_note2": "ObjectBox manages crucial IDs for your object model. See docs for details.",
+  "_note3": "If you have VCS merge conflicts, you must resolve them according to ObjectBox docs.",
+  "entities": [
+    {
+      "id": "1:2839850072020721311",
+      "lastPropertyId": "5:6118110922494032276",
+      "name": "PastThingOBx",
+      "properties": [
+        {
+          "id": "1:3729325003730483663",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:8324193424352777392",
+          "name": "uuid",
+          "type": 9
+        },
+        {
+          "id": "3:6009661761600483700",
+          "name": "listUuid",
+          "type": 9
+        },
+        {
+          "id": "4:5459126333682917308",
+          "name": "bought",
+          "type": 1
+        },
+        {
+          "id": "5:6118110922494032276",
+          "name": "listId",
+          "type": 11,
+          "flags": 520,
+          "indexId": "1:212449984917904004",
+          "relationTarget": "PastShoppingOBx"
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "2:5586334640545144919",
+      "lastPropertyId": "4:6057061146170701975",
+      "name": "ShoppingListOBx",
+      "properties": [
+        {
+          "id": "1:240934411006295533",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:7913513366179431294",
+          "name": "uuid",
+          "type": 9
+        },
+        {
+          "id": "3:3411346830418980385",
+          "name": "name",
+          "type": 9
+        },
+        {
+          "id": "4:6057061146170701975",
+          "name": "description",
+          "type": 9
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "3:526035377243539940",
+      "lastPropertyId": "5:2317048264076287789",
+      "name": "ShoppingThingOBx",
+      "properties": [
+        {
+          "id": "1:6973456518992737868",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:308651659911026458",
+          "name": "uuid",
+          "type": 9
+        },
+        {
+          "id": "3:7586626269985731250",
+          "name": "listUuid",
+          "type": 9
+        },
+        {
+          "id": "4:6196317502563484072",
+          "name": "bought",
+          "type": 1
+        },
+        {
+          "id": "5:2317048264076287789",
+          "name": "listId",
+          "type": 11,
+          "flags": 520,
+          "indexId": "2:442227716974277385",
+          "relationTarget": "ShoppingListOBx"
+        }
+      ],
+      "relations": []
+    }
+  ],
+  "lastEntityId": "3:526035377243539940",
+  "lastIndexId": "2:442227716974277385",
+  "lastRelationId": "0:0",
+  "lastSequenceId": "0:0",
+  "modelVersion": 5,
+  "modelVersionParserMinimum": 5,
+  "retiredEntityUids": [],
+  "retiredIndexUids": [],
+  "retiredPropertyUids": [],
+  "retiredRelationUids": [],
+  "version": 1
+}
