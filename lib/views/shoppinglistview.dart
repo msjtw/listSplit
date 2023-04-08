@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../providers/shoppinglistprovider.dart';
+import '../save/models.dart';
 
 class ShoppingListView extends ConsumerStatefulWidget {
-  final String uuid;
+  final int uuid;
 
   const ShoppingListView({required this.uuid, super.key});
 
@@ -14,7 +15,7 @@ class ShoppingListView extends ConsumerStatefulWidget {
 }
 
 class _ShoppingListViewState extends ConsumerState<ShoppingListView> {
-  String editUuid = "";
+  int editUuid = -1;
   bool showHistory = false;
 
   final _newThingController = TextEditingController();
@@ -68,7 +69,7 @@ class _ShoppingListViewState extends ConsumerState<ShoppingListView> {
                   Navigator.pop(context);
                   ref
                       .read(shoppingListsProvider.notifier)
-                      .editList(list.uuid, list.name, newDescription);
+                      .editList(list, list.name, newDescription);
                 });
               },
             ),
@@ -77,7 +78,7 @@ class _ShoppingListViewState extends ConsumerState<ShoppingListView> {
   }
 
   Future<PastShopping> _getNewShopping(
-      BuildContext context, ShoppingList list, String thingUuid) async {
+      BuildContext context, ShoppingList list, int thingUuid) async {
     return await Navigator.of(context).push(MaterialPageRoute(
         builder: (context) =>
             ShoppingView(list: list, firstThingUuid: thingUuid)));
@@ -193,14 +194,14 @@ class _ShoppingListViewState extends ConsumerState<ShoppingListView> {
                       onHorizontalDragEnd: (details) async {
                         PastShopping shopping = await _getNewShopping(
                             context, list, list.things[index].uuid);
-                        if (shopping.uuid != "" && shopping.things.isNotEmpty) {
+                        if (shopping.uuid != -1 && shopping.things.isNotEmpty) {
                           ref
                               .read(shoppingListsProvider.notifier)
                               .addShopping(shopping);
                           for (var thing in shopping.things) {
                             ref
                                 .read(shoppingListsProvider.notifier)
-                                .removeThing(list.uuid, thing.uuid);
+                                .removeThing(list, thing);
                           }
                         }
                       },
@@ -235,33 +236,47 @@ class _ShoppingListViewState extends ConsumerState<ShoppingListView> {
                     ),
                     onSubmitted: (String text) {
                       setState(() {
-                        if (editUuid == "") {
+                        if (editUuid == -1) {
                           ref.read(shoppingListsProvider.notifier).addThing(
-                              list.uuid, Thing(listUuid: list.uuid, name: text, bought: false));
+                              list,
+                              Thing(
+                                  listUuid: list.uuid,
+                                  name: text,
+                                  bought: false));
                         } else {
-                          ref
-                              .read(shoppingListsProvider.notifier)
-                              .editThing(list.uuid, editUuid, text, false);
+                          ref.read(shoppingListsProvider.notifier).editThing(
+                              list,
+                              list.things
+                                  .where((thing) => thing.uuid == editUuid)
+                                  .first,
+                              text,
+                              false);
                         }
 
-                        editUuid = "";
+                        editUuid = -1;
                       });
 
                       _newThingController.clear();
                     },
                   ),
                 ),
-                (editUuid != ""
+                (editUuid != -1
                     ? IconButton(
                         onPressed: () {
                           setState(() {
                             ref
                                 .read(shoppingListsProvider.notifier)
-                                .removeThing(list.uuid, editUuid);
+                                .removeThing(
+                                    list,
+                                    list
+                                        .things
+                                        .where(
+                                            (thing) => thing.uuid == editUuid)
+                                        .first);
                           });
                           FocusScope.of(context).unfocus();
                           _newThingController.clear();
-                          editUuid = "";
+                          editUuid = -1;
                         },
                         icon: const Icon(Icons.delete))
                     : Container(width: 0))
@@ -276,7 +291,7 @@ class _ShoppingListViewState extends ConsumerState<ShoppingListView> {
 
 class ShoppingView extends StatefulWidget {
   final ShoppingList list;
-  final String firstThingUuid;
+  final int firstThingUuid;
 
   const ShoppingView(
       {required this.list, required this.firstThingUuid, super.key});
@@ -302,8 +317,7 @@ class _ShoppingViewState extends State<ShoppingView> {
       onWillPop: () async {
         Navigator.pop(
           context,
-          PastShopping(
-              uuid: '', things: chosenThings, listUuid: widget.list.uuid),
+          PastShopping(things: chosenThings, listUuid: widget.list.uuid),
         );
         return false;
       },

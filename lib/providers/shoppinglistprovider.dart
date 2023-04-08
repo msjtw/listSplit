@@ -1,161 +1,56 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:uuid/uuid.dart';
 
-@immutable
-class Thing {
-  final String uuid;
-  final String name;
-  final String listUuid;
-  final bool bought;
-
-  Thing({
-    required this.name,
-    required this.bought,
-    required this.listUuid,
-    String? uuid,
-  }) : uuid = uuid ?? const Uuid().v4();
-
-  Thing copyWith({String? uuid, String? name, String? listUuid, bool? bought}) {
-    return Thing(
-      uuid: uuid ?? this.uuid,
-      name: name ?? this.name,
-      listUuid: listUuid ?? this.listUuid,
-      bought: bought ?? this.bought,
-    );
-  }
-}
-
-@immutable
-class ShoppingList {
-  final String uuid;
-  final List<Thing> things;
-  final String name;
-  final String description;
-  final List<PastShopping> pastShoppings;
-
-  ShoppingList({
-    required this.name,
-    String? description,
-    List<Thing>? things,
-    String? uuid,
-    List<PastShopping>? pastShoppings,
-  })  : description = description ?? 'List desctiption..',
-        things = things ?? [],
-        uuid = uuid ?? const Uuid().v4(),
-        pastShoppings = pastShoppings ?? [];
-
-  ShoppingList copyWith(
-      {String? uuid,
-      List<Thing>? things,
-      String? name,
-      String? description,
-      List<PastShopping>? pastShoppings}) {
-    return ShoppingList(
-      uuid: uuid ?? this.uuid,
-      things: things ?? this.things,
-      name: name ?? this.name,
-      description: description ?? this.description,
-      pastShoppings: pastShoppings ?? this.pastShoppings,
-    );
-  }
-
-  ShoppingList.fromMap(Map<String, dynamic> list)
-      : uuid = list['uuid'],
-        things = list['things'],
-        name = list['name'],
-        description = list['description'],
-        pastShoppings = list['pastShoppings'];
-
-  Map<String, dynamic> toMap() {
-    return {
-      'uuid': uuid,
-      'things': things,
-      'name': name,
-      'description': description,
-      'pastShoppings': pastShoppings,
-    };
-  }
-}
-
-@immutable
-class PastShopping {
-  final String uuid;
-  final String name;
-  final String listUuid;
-  final DateTime time;
-  final List<Thing> things;
-  final int cost;
-
-  PastShopping({
-    required this.things,
-    required this.listUuid,
-    String? uuid,
-    String? name,
-    DateTime? time,
-    int? cost,
-  })  : uuid = uuid ?? const Uuid().v4(),
-        time = time ?? DateTime.now(),
-        name = name ?? '',
-        cost = cost ?? -1;
-
-  PastShopping copyWith(
-      {String? name, DateTime? time, List<Thing>? things, int? cost}) {
-    return PastShopping(
-      uuid: uuid,
-      name: name ?? this.name,
-      listUuid: listUuid,
-      time: time ?? this.time,
-      things: things ?? this.things,
-      cost: cost ?? this.cost,
-    );
-  }
-}
+import '../main.dart';
+import '../save/models.dart';
 
 class ShoppingListsNotifier extends Notifier<List<ShoppingList>> {
   @override
   List<ShoppingList> build() {
-    return [];
+    return objectbox.readAll();
   }
 
-  void addList(ShoppingList list) {
-    state = [...state, list];
+  void addList(ShoppingList listRef) {
+    objectbox.saveShoppingList(listRef);
+    state = [...state, listRef];
   }
 
-  void removelist(String listUuid) {
+  void removelist(ShoppingList listRef) {
     state = [
       for (var list in state)
-        if (list.uuid != listUuid) list,
+        if (list.uuid != listRef.uuid) list,
     ];
   }
 
-  void editList(String listUuid, String? name, String? descripion) {
+  void editList(ShoppingList listRef, String? name, String? descripion) {
+    objectbox.saveShoppingList(
+        listRef.copyWith(name: name, description: descripion));
     state = [
       for (var list in state)
-        if (list.uuid == listUuid)
+        if (list.uuid == listRef.uuid)
           list.copyWith(name: name, description: descripion)
         else
           list
     ];
   }
 
-  void addThing(String listUuid, Thing thing) {
+  void addThing(ShoppingList listRef, Thing thing) {
+    objectbox.saveThing(thing);
     state = [
       for (var list in state)
-        if (list.uuid == listUuid)
+        if (list.uuid == listRef.uuid)
           list.copyWith(things: [...list.things, thing])
         else
           list
     ];
   }
 
-  void removeThing(String listUuid, String thingUuid) {
+  void removeThing(ShoppingList listRef, Thing thingRef) {
     state = [
       for (var list in state)
-        if (list.uuid == listUuid)
+        if (list.uuid == listRef.uuid)
           list.copyWith(things: [
             for (var thing in list.things)
-              if (thing.uuid != thingUuid) thing
+              if (thing.uuid != thingRef.uuid) thing
           ])
         else
           list
@@ -163,13 +58,14 @@ class ShoppingListsNotifier extends Notifier<List<ShoppingList>> {
   }
 
   void editThing(
-      String listUuid, String thingUuid, String? name, bool? bought) {
+      ShoppingList listRef, Thing thingRef, String? name, bool? bought) {
+    objectbox.saveThing(thingRef.copyWith(name: name, bought: bought));
     state = [
       for (var list in state)
-        if (list.uuid == listUuid)
+        if (list.uuid == listRef.uuid)
           list.copyWith(things: [
             for (var thing in list.things)
-              if (thing.uuid == thingUuid)
+              if (thing.uuid == thingRef.uuid)
                 thing.copyWith(name: name, bought: bought)
               else
                 thing
@@ -180,10 +76,11 @@ class ShoppingListsNotifier extends Notifier<List<ShoppingList>> {
   }
 
   void addShopping(PastShopping shopping) {
+    PastShopping newShopping = objectbox.savePastShopping(shopping);
     state = [
       for (var list in state)
-        if (list.uuid == shopping.listUuid)
-          list.copyWith(pastShoppings: [...list.pastShoppings, shopping])
+        if (list.uuid == newShopping.listUuid)
+          list.copyWith(pastShoppings: [...list.pastShoppings, newShopping])
         else
           list
     ];

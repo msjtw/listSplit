@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:notes_app/save/objectbox.dart';
 
-import 'theme.dart';
+//import 'theme.dart';
 import 'views/alllistview.dart';
 
-void main() {
+late ObjectBox objectbox;
+
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
+  objectbox = await ObjectBox.create();
+
   runApp(
     const ProviderScope(
       child: MyApp(),

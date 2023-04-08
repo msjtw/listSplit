@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../providers/shoppinglistprovider.dart';
+import '../save/models.dart';
 import 'shoppinglistview.dart';
 
 class AllListView extends ConsumerWidget {
@@ -66,7 +67,7 @@ class AllListView extends ConsumerWidget {
                 if (list != null) {
                   ref
                       .read(shoppingListsProvider.notifier)
-                      .editList(list.uuid, list.name, list.description);
+                      .editList(list, list.name, list.description);
                 }
               },
             ),
@@ -93,7 +94,7 @@ class AllListView extends ConsumerWidget {
   }
 
   Future<ShoppingList?> _nameAndDescriptionChange(
-      BuildContext context, ref, String? listUuid) async {
+      BuildContext context, ref, int? listUuid) async {
     final nameController = TextEditingController();
     final descriptionController = TextEditingController();
 
