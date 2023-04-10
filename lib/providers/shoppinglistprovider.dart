@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../main.dart';
-import '../save/models.dart';
+import '../services/models.dart';
 
 class ShoppingListsNotifier extends Notifier<List<ShoppingList>> {
   @override

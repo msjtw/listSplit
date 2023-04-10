@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../providers/shoppinglistprovider.dart';
-import '../save/models.dart';
+import '../services/models.dart';
 import 'shoppinglistview.dart';
 
 class AllListView extends ConsumerWidget {

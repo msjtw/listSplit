@@ -1,5 +1,5 @@
-import 'models.dart';
-import 'objectbox.g.dart'; // created by `flutter pub run build_runner build`
+import '../models.dart';
+import '../save/objectbox.g.dart'; // created by `flutter pub run build_runner build`
 
 class ObjectBox {
   /// The Store of this app.
