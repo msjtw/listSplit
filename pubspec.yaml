@@ -6,20 +6,27 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 0.0.1+1
 
 environment:
-  sdk: '>=2.18.4 <3.0.0'
+  sdk: ">=2.17.0 <3.0.0"
+  flutter: ">=3.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
+  flutter_riverpod: ^2.3.1
+  riverpod_annotation: ^2.0.1
+  uuid: ^3.0.6
+  path: ^1.8.0
+  objectbox: ^2.0.0
+  objectbox_flutter_libs: any
 
-  english_words: ^4.0.0
-  provider: ^6.0.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
   flutter_lints: ^2.0.0
+  build_runner: ^2.3.3
+  objectbox_generator: any
 
 flutter:
   uses-material-design: true
