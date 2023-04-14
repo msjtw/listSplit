@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:notes_app/services/fasthash.dart';
-import 'package:objectbox/objectbox.dart';
-import 'package:uuid/uuid.dart';
 
+import 'package:objectbox/objectbox.dart';
+
+// ignore: must_be_immutable
 @Entity()
 @immutable
+// ignore: must_be_immutable
 class Thing {
   @Id(assignable: true)
   int uuid;
@@ -33,6 +34,7 @@ class Thing {
 
 @Entity()
 @immutable
+// ignore: must_be_immutable
 class ShoppingList {
   @Id()
   int uuid;
@@ -74,6 +76,7 @@ class ShoppingList {
 
 @Entity()
 @immutable
+// ignore: must_be_immutable
 class PastShopping {
   @Id()
   int uuid;
@@ -83,7 +86,7 @@ class PastShopping {
   final DateTime time;
   @Transient()
   final List<Thing> things;
-  final int cost;
+  final double cost;
 
   PastShopping({
     required this.listUuid,
@@ -91,7 +94,7 @@ class PastShopping {
     int? uuid,
     String? name,
     DateTime? time,
-    int? cost,
+    double? cost,
     int? obId,
   })  : uuid = uuid ?? 0,
         time = time ?? DateTime.now(),
@@ -103,7 +106,7 @@ class PastShopping {
       {String? name,
       DateTime? time,
       List<Thing>? things,
-      int? cost,
+      double? cost,
       int? uuid}) {
     return PastShopping(
       uuid: uuid ?? this.uuid,

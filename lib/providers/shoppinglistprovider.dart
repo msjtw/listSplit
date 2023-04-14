@@ -15,6 +15,7 @@ class ShoppingListsNotifier extends Notifier<List<ShoppingList>> {
   }
 
   void removelist(ShoppingList listRef) {
+    objectbox.eraseShoppingList(listRef);
     state = [
       for (var list in state)
         if (list.uuid != listRef.uuid) list,
@@ -45,6 +46,7 @@ class ShoppingListsNotifier extends Notifier<List<ShoppingList>> {
   }
 
   void removeThing(ShoppingList listRef, Thing thingRef) {
+    objectbox.eraseThing(thingRef);
     state = [
       for (var list in state)
         if (list.uuid == listRef.uuid)
@@ -81,6 +83,20 @@ class ShoppingListsNotifier extends Notifier<List<ShoppingList>> {
       for (var list in state)
         if (list.uuid == newShopping.listUuid)
           list.copyWith(pastShoppings: [...list.pastShoppings, newShopping])
+        else
+          list
+    ];
+  }
+
+  void removeShopping(PastShopping shopping) {
+    objectbox.erasePastShopping(shopping);
+    state = [
+      for (var list in state)
+        if (list.uuid == shopping.listUuid)
+          list.copyWith(pastShoppings: [
+            for (var pastShopping in list.pastShoppings)
+              if (pastShopping.uuid != shopping.uuid) pastShopping
+          ])
         else
           list
     ];

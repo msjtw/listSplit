@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../providers/shoppinglistprovider.dart';
+import '../services/datestring.dart';
 import '../services/models.dart';
+import 'shoppingview.dart';
 
 class ShoppingListView extends ConsumerStatefulWidget {
   final int uuid;
@@ -125,11 +127,13 @@ class _ShoppingListViewState extends ConsumerState<ShoppingListView> {
                                       : Text(list.pastShoppings[index].name)),
                                   Row(
                                     children: [
-                                      Text(list.pastShoppings[index].time
-                                          .toString()),
+                                      Text(dateString(
+                                          list.pastShoppings[index].time)),
                                       Flexible(child: Container()),
-                                      Text(
-                                          'cost: ${list.pastShoppings[index].cost}')
+                                      list.pastShoppings[index].cost != -1
+                                          ? Text(
+                                              'cost: ${list.pastShoppings[index].cost}')
+                                          : Container(),
                                     ],
                                   ),
                                   ListView.builder(
@@ -232,7 +236,7 @@ class _ShoppingListViewState extends ConsumerState<ShoppingListView> {
                     focusNode: _thingEditNode,
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
-                      hintText: 'add new thing',
+                      hintText: 'add a new thing',
                     ),
                     onSubmitted: (String text) {
                       setState(() {
@@ -283,121 +287,6 @@ class _ShoppingListViewState extends ConsumerState<ShoppingListView> {
               ],
             )
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class ShoppingView extends StatefulWidget {
-  final ShoppingList list;
-  final int firstThingUuid;
-
-  const ShoppingView(
-      {required this.list, required this.firstThingUuid, super.key});
-
-  @override
-  State<ShoppingView> createState() => _ShoppingViewState();
-}
-
-class _ShoppingViewState extends State<ShoppingView> {
-  List<Thing> chosenThings = [];
-
-  @override
-  void initState() {
-    super.initState();
-    chosenThings = widget.list.things
-        .where((thing) => thing.uuid == widget.firstThingUuid)
-        .toList();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        Navigator.pop(
-          context,
-          PastShopping(things: chosenThings, listUuid: widget.list.uuid),
-        );
-        return false;
-      },
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text('delete things from ${widget.list.name}'),
-        ),
-        body: ListView.builder(
-          itemCount: widget.list.things.length,
-          itemBuilder: (BuildContext context, int index) {
-            return GestureDetector(
-              onHorizontalDragEnd: (details) {
-                setState(() {
-                  if (!chosenThings.remove(widget.list.things[index])) {
-                    chosenThings.add(widget.list.things[index]);
-                  }
-                });
-              },
-              child: Padding(
-                padding: const EdgeInsets.all(4.0),
-                child: Row(
-                  children: [
-                    chosenThings.contains(widget.list.things[index])
-                        ? Flexible(child: Container())
-                        : Container(),
-                    Text(
-                      widget.list.things[index].name,
-                      style: TextStyle(
-                          backgroundColor:
-                              (chosenThings.contains(widget.list.things[index])
-                                  ? Colors.yellow
-                                  : Colors.transparent)),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            showDialog(
-              context: context,
-              builder: (_) => AlertDialog(
-                title: Text(
-                    'You\'ve marked ${chosenThings.length} ${chosenThings.length > 1 ? 'things' : 'thing'}'),
-                content: SizedBox(
-                  height: 400,
-                  width: 400,
-                  child: ListView.builder(
-                      itemCount: chosenThings.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        return Text(chosenThings[index].name);
-                      }),
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: const Text('discard'),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      PastShopping save = PastShopping(
-                          things: chosenThings, listUuid: widget.list.uuid);
-                      Navigator.pop(context);
-                      Navigator.pop(context, save);
-                    },
-                    child: const Text('save'),
-                  ),
-                  TextButton(
-                    onPressed: () {},
-                    child: const Text('add details'),
-                  ),
-                ],
-              ),
-            );
-          },
-          child: const Icon(Icons.save),
         ),
       ),
     );

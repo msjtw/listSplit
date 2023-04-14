@@ -20,57 +20,57 @@ export 'package:objectbox/objectbox.dart'; // so that callers only have to impor
 
 final _entities = <ModelEntity>[
   ModelEntity(
-      id: const IdUid(1, 5080710825858779161),
+      id: const IdUid(1, 3516436206154037100),
       name: 'PastShopping',
-      lastPropertyId: const IdUid(5, 1626517078213869459),
+      lastPropertyId: const IdUid(5, 7651095232612346187),
       flags: 0,
       properties: <ModelProperty>[
         ModelProperty(
-            id: const IdUid(1, 5482398629363652132),
+            id: const IdUid(1, 7824459938878492562),
             name: 'uuid',
             type: 6,
             flags: 1),
         ModelProperty(
-            id: const IdUid(2, 1967523695618683272),
+            id: const IdUid(2, 6897386506419386752),
             name: 'name',
             type: 9,
             flags: 0),
         ModelProperty(
-            id: const IdUid(3, 5161667193461707090),
+            id: const IdUid(3, 6849839547582213431),
             name: 'listUuid',
             type: 6,
             flags: 0),
         ModelProperty(
-            id: const IdUid(4, 1387489244792776501),
+            id: const IdUid(4, 2071618162818264532),
             name: 'time',
             type: 10,
             flags: 0),
         ModelProperty(
-            id: const IdUid(5, 1626517078213869459),
+            id: const IdUid(5, 7651095232612346187),
             name: 'cost',
-            type: 6,
+            type: 8,
             flags: 0)
       ],
       relations: <ModelRelation>[],
       backlinks: <ModelBacklink>[]),
   ModelEntity(
-      id: const IdUid(2, 4379754701273002595),
+      id: const IdUid(2, 4083409366664921046),
       name: 'ShoppingList',
-      lastPropertyId: const IdUid(3, 6581753496609270141),
+      lastPropertyId: const IdUid(3, 7318999122250022109),
       flags: 0,
       properties: <ModelProperty>[
         ModelProperty(
-            id: const IdUid(1, 2025520142720025444),
+            id: const IdUid(1, 3867544468799206340),
             name: 'uuid',
             type: 6,
             flags: 1),
         ModelProperty(
-            id: const IdUid(2, 9143744111963213553),
+            id: const IdUid(2, 6466438914149218688),
             name: 'name',
             type: 9,
             flags: 0),
         ModelProperty(
-            id: const IdUid(3, 6581753496609270141),
+            id: const IdUid(3, 7318999122250022109),
             name: 'description',
             type: 9,
             flags: 0)
@@ -78,37 +78,37 @@ final _entities = <ModelEntity>[
       relations: <ModelRelation>[],
       backlinks: <ModelBacklink>[]),
   ModelEntity(
-      id: const IdUid(3, 8464386389836284349),
+      id: const IdUid(3, 1363826320202440876),
       name: 'Thing',
-      lastPropertyId: const IdUid(5, 4121501464088230701),
+      lastPropertyId: const IdUid(5, 8361431883375069243),
       flags: 0,
       properties: <ModelProperty>[
         ModelProperty(
-            id: const IdUid(1, 8125738117866692281),
+            id: const IdUid(1, 558273963424261959),
             name: 'uuid',
             type: 6,
             flags: 129),
         ModelProperty(
-            id: const IdUid(2, 6921864336122868377),
+            id: const IdUid(2, 7493269082798538786),
             name: 'name',
             type: 9,
             flags: 0),
         ModelProperty(
-            id: const IdUid(3, 8404665385516867330),
+            id: const IdUid(3, 2776790029119916911),
             name: 'listUuid',
             type: 6,
             flags: 0),
         ModelProperty(
-            id: const IdUid(4, 406489736588142344),
+            id: const IdUid(4, 7458826850235706411),
             name: 'bought',
             type: 1,
             flags: 0),
         ModelProperty(
-            id: const IdUid(5, 4121501464088230701),
+            id: const IdUid(5, 8361431883375069243),
             name: 'listId',
             type: 11,
             flags: 520,
-            indexId: const IdUid(1, 4267729565463907967),
+            indexId: const IdUid(1, 5780930541171764065),
             relationTarget: 'ShoppingList')
       ],
       relations: <ModelRelation>[],
@@ -135,8 +135,8 @@ Future<Store> openStore(
 ModelDefinition getObjectBoxModel() {
   final model = ModelInfo(
       entities: _entities,
-      lastEntityId: const IdUid(3, 8464386389836284349),
-      lastIndexId: const IdUid(1, 4267729565463907967),
+      lastEntityId: const IdUid(3, 1363826320202440876),
+      lastIndexId: const IdUid(1, 5780930541171764065),
       lastRelationId: const IdUid(0, 0),
       lastSequenceId: const IdUid(0, 0),
       retiredEntityUids: const [],
@@ -163,7 +163,7 @@ ModelDefinition getObjectBoxModel() {
           fbb.addOffset(1, nameOffset);
           fbb.addInt64(2, object.listUuid);
           fbb.addInt64(3, object.time.millisecondsSinceEpoch);
-          fbb.addInt64(4, object.cost);
+          fbb.addFloat64(4, object.cost);
           fbb.finish(fbb.endTable());
           return object.uuid;
         },
@@ -179,8 +179,8 @@ ModelDefinition getObjectBoxModel() {
                   .vTableGet(buffer, rootOffset, 6, ''),
               time: DateTime.fromMillisecondsSinceEpoch(
                   const fb.Int64Reader().vTableGet(buffer, rootOffset, 10, 0)),
-              cost:
-                  const fb.Int64Reader().vTableGet(buffer, rootOffset, 12, 0));
+              cost: const fb.Float64Reader()
+                  .vTableGet(buffer, rootOffset, 12, 0));
 
           return object;
         }),
@@ -276,7 +276,7 @@ class PastShopping_ {
 
   /// see [PastShopping.cost]
   static final cost =
-      QueryIntegerProperty<PastShopping>(_entities[0].properties[4]);
+      QueryDoubleProperty<PastShopping>(_entities[0].properties[4]);
 }
 
 /// [ShoppingList] entity fields to define ObjectBox queries.

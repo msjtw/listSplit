@@ -26,6 +26,15 @@ class ObjectBox {
   }
 
   void eraseShoppingList(ShoppingList list) {
+    for (var pastShopping in list.pastShoppings) {
+      for (var thing in pastShopping.things) {
+        eraseThing(thing);
+      }
+      erasePastShopping(pastShopping);
+    }
+    for (var thing in list.things) {
+      eraseThing(thing);
+    }
     shoppingListBox.remove(list.uuid);
   }
 
@@ -46,6 +55,10 @@ class ObjectBox {
       thingsBox.put(thing);
     }
     return shopping;
+  }
+
+  void erasePastShopping(PastShopping shopping) {
+    pastShoppingBox.remove(shopping.uuid);
   }
 
   List<ShoppingList> readAll() {

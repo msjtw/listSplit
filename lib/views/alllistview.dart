@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../main.dart';
 import '../providers/shoppinglistprovider.dart';
 import '../services/models.dart';
 import 'shoppinglistview.dart';
@@ -32,12 +33,31 @@ class AllListView extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        shoppingLists[index].name,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20.0,
-                        ),
+                      Row(
+                        children: [
+                          Text(
+                            shoppingLists[index].name,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20.0,
+                            ),
+                          ),
+                          Flexible(
+                            child: Container(),
+                          ),
+                          IconButton(
+                              onPressed: () async {
+                                var list = await _nameAndDescriptionChange(
+                                    context, ref, shoppingLists[index].uuid);
+                                if (list != null) {
+                                  ref
+                                      .read(shoppingListsProvider.notifier)
+                                      .editList(
+                                          list, list.name, list.description);
+                                }
+                              },
+                              icon: const Icon(Icons.menu))
+                        ],
                       ),
                       const SizedBox(height: 10),
                       (shoppingLists[index].description == ''
@@ -160,9 +180,57 @@ class AllListView extends ConsumerWidget {
                           },
                           icon: const Icon(Icons.done)),
                     ],
-                  )
+                  ),
+                  (listUuid != null
+                      ? ElevatedButton.icon(
+                          onPressed: () async {
+                            bool? areTheySure = await _youSure(context);
+                            if (areTheySure == true) {
+                              Navigator.pop(context);
+                              ref
+                                  .read(shoppingListsProvider.notifier)
+                                  .removelist(list);
+                            }
+                          },
+                          icon: const Icon(Icons.delete),
+                          label: const Text('delete list'),
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red),
+                        )
+                      : Container())
                 ],
               ),
+            ),
+          );
+        });
+  }
+
+  Future<bool?> _youSure(BuildContext context) async {
+    return showDialog<bool>(
+        context: context,
+        builder: (context) {
+          return WillPopScope(
+            onWillPop: () async {
+              return false;
+            },
+            child: AlertDialog(
+              title: const Text('Are you sure?'),
+              actions: [
+                TextButton.icon(
+                  onPressed: () {
+                    Navigator.pop(context, true);
+                  },
+                  icon: const Icon(Icons.done),
+                  label: const Text('yep'),
+                ),
+                TextButton.icon(
+                  onPressed: () {
+                    Navigator.pop(context, false);
+                  },
+                  icon: const Icon(Icons.cancel),
+                  label: const Text('hell no'),
+                ),
+              ],
             ),
           );
         });
