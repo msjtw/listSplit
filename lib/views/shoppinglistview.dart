@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/shoppinglistprovider.dart';
 import '../services/datestring.dart';
 import '../services/models.dart';
+import '../services/you_sure_prompt.dart';
 import 'shoppingview.dart';
 
 class ShoppingListView extends ConsumerStatefulWidget {
@@ -79,13 +80,6 @@ class _ShoppingListViewState extends ConsumerState<ShoppingListView> {
         });
   }
 
-  Future<PastShopping> _getNewShopping(
-      BuildContext context, ShoppingList list, int thingUuid) async {
-    return await Navigator.of(context).push(MaterialPageRoute(
-        builder: (context) =>
-            ShoppingView(list: list, firstThingUuid: thingUuid)));
-  }
-
   Widget historyView(BuildContext context) {
     final ShoppingList list = ref
         .watch(shoppingListsProvider)
@@ -110,42 +104,52 @@ class _ShoppingListViewState extends ConsumerState<ShoppingListView> {
                       itemBuilder: (BuildContext context, index) {
                         return Padding(
                           padding: const EdgeInsets.all(4),
-                          child: Container(
-                            decoration: const BoxDecoration(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(8)),
-                              color: Colors.limeAccent,
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Column(
-                                children: [
-                                  (list.pastShoppings[index].name == ''
-                                      ? Container(
-                                          height: 0,
-                                        )
-                                      : Text(list.pastShoppings[index].name)),
-                                  Row(
-                                    children: [
-                                      Text(dateString(
-                                          list.pastShoppings[index].time)),
-                                      Flexible(child: Container()),
-                                      list.pastShoppings[index].cost != -1
-                                          ? Text(
-                                              'cost: ${list.pastShoppings[index].cost}')
-                                          : Container(),
-                                    ],
-                                  ),
-                                  ListView.builder(
-                                      shrinkWrap: true,
-                                      itemCount: list
-                                          .pastShoppings[index].things.length,
-                                      itemBuilder:
-                                          (BuildContext context, kndex) {
-                                        return Text(list.pastShoppings[index]
-                                            .things[kndex].name);
-                                      })
-                                ],
+                          child: GestureDetector(
+                            onLongPress: () async {
+                              int? action = await editPrompt(context);
+                              if (action == 0) {
+                                ref
+                                    .read(shoppingListsProvider.notifier)
+                                    .removeShopping(list.pastShoppings[index]);
+                              }
+                            },
+                            child: Container(
+                              decoration: const BoxDecoration(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(8)),
+                                color: Colors.limeAccent,
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Column(
+                                  children: [
+                                    (list.pastShoppings[index].name == ''
+                                        ? Container(
+                                            height: 0,
+                                          )
+                                        : Text(list.pastShoppings[index].name)),
+                                    Row(
+                                      children: [
+                                        Text(dateString(
+                                            list.pastShoppings[index].time)),
+                                        Flexible(child: Container()),
+                                        list.pastShoppings[index].cost != -1
+                                            ? Text(
+                                                'cost: ${list.pastShoppings[index].cost}')
+                                            : Container(),
+                                      ],
+                                    ),
+                                    ListView.builder(
+                                        shrinkWrap: true,
+                                        itemCount: list
+                                            .pastShoppings[index].things.length,
+                                        itemBuilder:
+                                            (BuildContext context, kndex) {
+                                          return Text(list.pastShoppings[index]
+                                              .things[kndex].name);
+                                        })
+                                  ],
+                                ),
                               ),
                             ),
                           ),
@@ -195,19 +199,18 @@ class _ShoppingListViewState extends ConsumerState<ShoppingListView> {
                         _newThingController.text = list.things[index].name;
                         _thingEditNode.requestFocus();
                       },
-                      onHorizontalDragEnd: (details) async {
-                        PastShopping shopping = await _getNewShopping(
-                            context, list, list.things[index].uuid);
-                        if (shopping.uuid != -1 && shopping.things.isNotEmpty) {
-                          ref
-                              .read(shoppingListsProvider.notifier)
-                              .addShopping(shopping);
-                          for (var thing in shopping.things) {
-                            ref
-                                .read(shoppingListsProvider.notifier)
-                                .removeThing(list, thing);
-                          }
-                        }
+                      onHorizontalDragEnd: (details) {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => ShoppingView(
+                              list: list,
+                              pastShopping: PastShopping(
+                                listUuid: list.uuid,
+                                things: [list.things[index]],
+                              ),
+                            ),
+                          ),
+                        );
                       },
                       child: Text(
                         list.things[index].name,
@@ -290,5 +293,43 @@ class _ShoppingListViewState extends ConsumerState<ShoppingListView> {
         ),
       ),
     );
+  }
+
+  Future<int?> editPrompt(BuildContext context) async {
+    return showDialog<int>(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Shopping @'),
+            actions: [
+              TextButton.icon(
+                onPressed: () async {
+                  bool? sure = await youSure(context);
+                  if (sure == true) {
+                    Navigator.pop(context, 0);
+                  } else {
+                    Navigator.pop(context);
+                  }
+                },
+                icon: const Icon(Icons.delete),
+                label: const Text('delete'),
+              ),
+              TextButton.icon(
+                onPressed: () {
+                  Navigator.pop(context, 1);
+                },
+                icon: const Icon(Icons.edit_note),
+                label: const Text('edit'),
+              ),
+              TextButton.icon(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                icon: const Icon(Icons.arrow_back),
+                label: const Text('back'),
+              ),
+            ],
+          );
+        });
   }
 }

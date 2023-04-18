@@ -102,7 +102,19 @@ class ShoppingListsNotifier extends Notifier<List<ShoppingList>> {
     ];
   }
 
-  void editShopping;
+  void editShopping(PastShopping shoppingRef) {
+    objectbox.savePastShopping(shoppingRef);
+    state = [
+      for (var list in state)
+        if (list.uuid == shoppingRef.listUuid)
+          list.copyWith(pastShoppings: [
+            for (var shopping in list.pastShoppings)
+              if (shopping.uuid == shoppingRef.uuid) shoppingRef else shopping
+          ])
+        else
+          list
+    ];
+  }
 }
 
 final shoppingListsProvider =

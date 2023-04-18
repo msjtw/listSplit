@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../main.dart';
 import '../providers/shoppinglistprovider.dart';
 import '../services/models.dart';
+import '../services/you_sure_prompt.dart';
 import 'shoppinglistview.dart';
 
 class AllListView extends ConsumerWidget {
@@ -184,7 +184,7 @@ class AllListView extends ConsumerWidget {
                   (listUuid != null
                       ? ElevatedButton.icon(
                           onPressed: () async {
-                            bool? areTheySure = await _youSure(context);
+                            bool? areTheySure = await youSure(context);
                             if (areTheySure == true) {
                               Navigator.pop(context);
                               ref
@@ -205,34 +205,5 @@ class AllListView extends ConsumerWidget {
         });
   }
 
-  Future<bool?> _youSure(BuildContext context) async {
-    return showDialog<bool>(
-        context: context,
-        builder: (context) {
-          return WillPopScope(
-            onWillPop: () async {
-              return false;
-            },
-            child: AlertDialog(
-              title: const Text('Are you sure?'),
-              actions: [
-                TextButton.icon(
-                  onPressed: () {
-                    Navigator.pop(context, true);
-                  },
-                  icon: const Icon(Icons.done),
-                  label: const Text('yep'),
-                ),
-                TextButton.icon(
-                  onPressed: () {
-                    Navigator.pop(context, false);
-                  },
-                  icon: const Icon(Icons.cancel),
-                  label: const Text('hell no'),
-                ),
-              ],
-            ),
-          );
-        });
-  }
+  
 }
