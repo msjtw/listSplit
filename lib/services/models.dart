@@ -30,6 +30,11 @@ class Thing {
       bought: bought ?? this.bought,
     );
   }
+
+  @override
+  String toString() {
+    return '(uuid: $uuid, name: $name, list uuid: $listUuid, bought: $bought) ';
+  }
 }
 
 @Entity()
@@ -71,6 +76,11 @@ class ShoppingList {
       description: description ?? this.description,
       pastShoppings: pastShoppings ?? this.pastShoppings,
     );
+  }
+
+  @override
+  String toString() {
+    return '(uuid: $uuid, name: $name, things: ${things.length}, past shoppings: ${pastShoppings.length}) ';
   }
 }
 
@@ -116,5 +126,10 @@ class PastShopping {
       things: things ?? this.things,
       cost: cost ?? this.cost,
     );
+  }
+
+  @override
+  String toString() {
+    return '(uuid: $uuid, name: $name, list uuid: $listUuid, things: ${things.length}, cost: $cost) ';
   }
 }

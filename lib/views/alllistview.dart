@@ -52,8 +52,7 @@ class AllListView extends ConsumerWidget {
                                 if (list != null) {
                                   ref
                                       .read(shoppingListsProvider.notifier)
-                                      .editList(
-                                          list, list.name, list.description);
+                                      .editList(list);
                                 }
                               },
                               icon: const Icon(Icons.menu))
@@ -85,9 +84,7 @@ class AllListView extends ConsumerWidget {
                 var list = await _nameAndDescriptionChange(
                     context, ref, shoppingLists[index].uuid);
                 if (list != null) {
-                  ref
-                      .read(shoppingListsProvider.notifier)
-                      .editList(list, list.name, list.description);
+                  ref.read(shoppingListsProvider.notifier).editList(list);
                 }
               },
             ),
@@ -204,6 +201,4 @@ class AllListView extends ConsumerWidget {
           );
         });
   }
-
-  
 }

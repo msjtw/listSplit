@@ -19,13 +19,18 @@ class ShoppingView extends StatefulWidget {
 
 class _ShoppingViewState extends State<ShoppingView> {
   List<Thing> allThings = [];
-  List<Thing> chosenThings = [];
 
   @override
   void initState() {
     super.initState();
-    chosenThings = widget.pastShopping.things;
-    allThings = widget.pastShopping.things + widget.list.things;
+
+    allThings = widget.list.things;
+    if (widget.pastShopping.uuid != 0) {
+      allThings = allThings + widget.pastShopping.things;
+    }
+    for (int i = 0; i < allThings.length; i++) {
+      allThings[i] = allThings[i].copyWith(listUuid: widget.list.uuid);
+    }
   }
 
   @override
@@ -39,16 +44,10 @@ class _ShoppingViewState extends State<ShoppingView> {
         child: Column(
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: const [
-                Text(
-                  'things',
-                  style: TextStyle(fontSize: 20),
-                ),
-                Text(
-                  'chosen',
-                  style: TextStyle(fontSize: 20),
-                )
+                Icon(Icons.list_alt),
+                Icon(Icons.shopping_cart_checkout),
               ],
             ),
             const SizedBox(height: 10),
@@ -59,14 +58,13 @@ class _ShoppingViewState extends State<ShoppingView> {
                   return GestureDetector(
                     onHorizontalDragEnd: (details) {
                       setState(() {
-                        if (!chosenThings.remove(allThings[index])) {
-                          chosenThings.add(allThings[index]);
-                        }
+                        allThings[index] = allThings[index]
+                            .copyWith(bought: !allThings[index].bought);
                       });
                     },
                     child: Row(
                       children: [
-                        chosenThings.contains(allThings[index])
+                        allThings[index].bought
                             ? Flexible(child: Container())
                             : Container(),
                         Padding(
@@ -74,8 +72,7 @@ class _ShoppingViewState extends State<ShoppingView> {
                           child: Container(
                             padding: const EdgeInsets.all(6),
                             decoration: BoxDecoration(
-                              color: (chosenThings
-                                      .contains(allThings[index])
+                              color: (allThings[index].bought
                                   ? Colors.yellow
                                   : Colors.transparent),
                               borderRadius:
@@ -103,8 +100,17 @@ class _ShoppingViewState extends State<ShoppingView> {
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) => ShoppingCheckView(
-                  widget.pastShopping.copyWith(things: chosenThings),
-                  widget.list),
+                widget.pastShopping.copyWith(things: [
+                  for (var thing in allThings)
+                    if (thing.bought) thing
+                ]),
+                widget.list.copyWith(
+                  things: [
+                    for (var thing in allThings)
+                      if (!thing.bought) thing
+                  ],
+                ),
+              ),
             ),
           );
         },
@@ -146,7 +152,7 @@ class _ShoppingCheckViewState extends ConsumerState<ShoppingCheckView> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-            'You\'ve marked ${widget.shopping.things.length} ${widget.shopping.things.length > 1 ? 'things' : 'thing'}'),
+            'You\'ve marked ${widget.shopping.things.length} ${widget.shopping.things.length == 1 ? 'thing' : 'things'}'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -198,22 +204,22 @@ class _ShoppingCheckViewState extends ConsumerState<ShoppingCheckView> {
                 TextButton(
                   onPressed: () {
                     double? cost = correctCost(costController.text);
-
-                    if (widget.shopping.uuid != 0) {
-                      ref.read(shoppingListsProvider.notifier).editShopping(
-                            widget.shopping.copyWith(cost: cost),
-                          );
-                    } else {
-                      ref.read(shoppingListsProvider.notifier).addShopping(
-                            widget.shopping.copyWith(cost: cost),
-                          );
-                      for (var thing in widget.shopping.things) {
-                        ref
-                            .read(shoppingListsProvider.notifier)
-                            .removeThing(widget.list, thing);
-                      }
+                    ShoppingList list = widget.list.copyWith(
+                      pastShoppings: [
+                            for (var shopping in widget.list.pastShoppings)
+                              if (shopping.uuid != widget.shopping.uuid)
+                                shopping
+                          ] +
+                          [widget.shopping.copyWith(cost: cost)],
+                    );
+                    ref
+                        .read(shoppingListsProvider.notifier)
+                        .editList(list.copyWith());
+                    if (widget.shopping.things.isEmpty) {
+                      ref
+                          .read(shoppingListsProvider.notifier)
+                          .removeShopping(widget.shopping);
                     }
-
                     Navigator.pop(context);
                     Navigator.pop(context);
                   },

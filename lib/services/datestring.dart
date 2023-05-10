@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 String dateString(DateTime time) {
-  return '''${time.day}.${time.month}.${time.year} ${time.hour}:${time.minute}''';
+  return DateFormat('dd-MM-yyyy kk:mm').format(time);
 }

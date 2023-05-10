@@ -70,9 +70,7 @@ class _ShoppingListViewState extends ConsumerState<ShoppingListView> {
               onSubmitted: (newDescription) {
                 setState(() {
                   Navigator.pop(context);
-                  ref
-                      .read(shoppingListsProvider.notifier)
-                      .editList(list, list.name, newDescription);
+                  ref.read(shoppingListsProvider.notifier).editList(list);
                 });
               },
             ),
@@ -111,6 +109,15 @@ class _ShoppingListViewState extends ConsumerState<ShoppingListView> {
                                 ref
                                     .read(shoppingListsProvider.notifier)
                                     .removeShopping(list.pastShoppings[index]);
+                              } else if (action == 1) {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) => ShoppingView(
+                                      list: list,
+                                      pastShopping: list.pastShoppings[index],
+                                    ),
+                                  ),
+                                );
                               }
                             },
                             child: Container(
@@ -206,18 +213,25 @@ class _ShoppingListViewState extends ConsumerState<ShoppingListView> {
                               list: list,
                               pastShopping: PastShopping(
                                 listUuid: list.uuid,
-                                things: [list.things[index]],
+                                things: [
+                                  list.things[index].copyWith(bought: true)
+                                ],
                               ),
                             ),
                           ),
                         );
                       },
-                      child: Text(
-                        list.things[index].name,
-                        style: TextStyle(
+                      child: Padding(
+                        padding: const EdgeInsets.all(6),
+                        child: Text(
+                          list.things[index].name,
+                          style: TextStyle(
                             backgroundColor: (list.things[index].bought
                                 ? Colors.yellow
-                                : Colors.transparent)),
+                                : Colors.transparent),
+                            fontSize: 15,
+                          ),
+                        ),
                       ),
                     );
                   },
@@ -252,12 +266,12 @@ class _ShoppingListViewState extends ConsumerState<ShoppingListView> {
                                   bought: false));
                         } else {
                           ref.read(shoppingListsProvider.notifier).editThing(
-                              list,
-                              list.things
-                                  .where((thing) => thing.uuid == editUuid)
-                                  .first,
-                              text,
-                              false);
+                                list,
+                                list.things
+                                    .where((thing) => thing.uuid == editUuid)
+                                    .first
+                                    .copyWith(name: text, bought: false),
+                              );
                         }
 
                         editUuid = -1;

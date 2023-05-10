@@ -22,15 +22,11 @@ class ShoppingListsNotifier extends Notifier<List<ShoppingList>> {
     ];
   }
 
-  void editList(ShoppingList listRef, String? name, String? descripion) {
-    objectbox.saveShoppingList(
-        listRef.copyWith(name: name, description: descripion));
+  void editList(ShoppingList listRef) {
+    objectbox.saveShoppingList(listRef);
     state = [
       for (var list in state)
-        if (list.uuid == listRef.uuid)
-          list.copyWith(name: name, description: descripion)
-        else
-          list
+        if (list.uuid == listRef.uuid) listRef else list
     ];
   }
 
@@ -59,18 +55,14 @@ class ShoppingListsNotifier extends Notifier<List<ShoppingList>> {
     ];
   }
 
-  void editThing(
-      ShoppingList listRef, Thing thingRef, String? name, bool? bought) {
-    objectbox.saveThing(thingRef.copyWith(name: name, bought: bought));
+  void editThing(ShoppingList listRef, Thing thingRef) {
+    objectbox.saveThing(thingRef);
     state = [
       for (var list in state)
         if (list.uuid == listRef.uuid)
           list.copyWith(things: [
             for (var thing in list.things)
-              if (thing.uuid == thingRef.uuid)
-                thing.copyWith(name: name, bought: bought)
-              else
-                thing
+              if (thing.uuid == thingRef.uuid) thingRef else thing
           ])
         else
           list
