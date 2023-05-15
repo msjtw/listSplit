@@ -44,3 +44,6 @@ app.*.map.json
 /android/app/release
 lib/objectbox.g.dart
 lib/save/objectbox.g.dart
+
+
+lib/services/save/objectbox.g.dart

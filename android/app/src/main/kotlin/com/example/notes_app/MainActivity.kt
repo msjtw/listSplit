@@ -1,4 +1,4 @@
-package com.example.notes_app
+package com.stanislawfiedler.listSplit
 
 import io.flutter.embedding.android.FlutterActivity
 
