@@ -1,26 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:list_split/services/save/objectbox.g.dart';
 
-class SpendingsView extends StatelessWidget {
-  const SpendingsView({super.key});
+import '../providers/currentviewprovider.dart';
+import '../services/bnb.dart';
 
+class SpendingView extends ConsumerStatefulWidget {
+  const SpendingView({super.key});
+
+  @override
+  ConsumerState<ConsumerStatefulWidget> createState() => _SpendingViewState();
+}
+
+class _SpendingViewState extends ConsumerState<SpendingView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Center(child: Text('your spendings')),
+        title: const Text('Your expenses'),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.text_snippet),
-            label: 'Notes',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.payments),
-            label: 'Spendings',
-          ),
-        ],
-      ),
+      bottomNavigationBar: const BNB(),
+      body: Container(),
     );
   }
 }
+
+
+
+

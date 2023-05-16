@@ -210,7 +210,7 @@ class _ShoppingListViewState extends ConsumerState<ShoppingListView> {
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (context) => ShoppingView(
-                              list: list,
+                              list: list.copyWith(),
                               pastShopping: PastShopping(
                                 listUuid: list.uuid,
                                 things: [

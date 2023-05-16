@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../providers/shoppinglistprovider.dart';
+import '../services/bnb.dart';
 import '../services/models.dart';
 import '../services/you_sure_prompt.dart';
 import 'shoppinglistview.dart';
@@ -17,6 +18,7 @@ class AllListView extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Your shopping lists'),
       ),
+      bottomNavigationBar: BNB(),
       body: ListView.builder(
         itemCount: shoppingLists.length,
         itemBuilder: (BuildContext context, int index) {
@@ -55,7 +57,7 @@ class AllListView extends ConsumerWidget {
                                       .editList(list);
                                 }
                               },
-                              icon: const Icon(Icons.menu))
+                              icon: const Icon(Icons.more_vert))
                         ],
                       ),
                       const SizedBox(height: 10),
