@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "378839797068",
+    "firebase_url": "https://listsplit-76ded-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "listsplit-76ded",
+    "storage_bucket": "listsplit-76ded.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:378839797068:android:0a26ab62ee3d73f922d3e9",
+        "android_client_info": {
+          "package_name": "com.stanislawfiedler.listSplit"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "378839797068-eq4der0tdisj3gmvvf6du40vj2prrmgd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBtc0dAa5AojEOOT7MJK-74VZpsUeeenIo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "378839797068-eq4der0tdisj3gmvvf6du40vj2prrmgd.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "378839797068-e7c7uh3pouh7m0m1p6785vfhte5rq3ao.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.notesApp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

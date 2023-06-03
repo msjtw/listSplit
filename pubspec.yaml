@@ -19,6 +19,7 @@ dependencies:
   objectbox: ^2.0.0
   objectbox_flutter_libs: any
   intl: ^0.18.1
+  firebase_core: ^2.13.1
 
 
 dev_dependencies:

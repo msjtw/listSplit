@@ -4,6 +4,9 @@ import 'package:list_split/views/spendingview.dart';
 import 'providers/currentviewprovider.dart';
 import 'services/save/objectbox.dart';
 
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+
 //import 'theme.dart';
 import 'views/alllistview.dart';
 
@@ -11,6 +14,10 @@ late ObjectBox objectbox;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   objectbox = await ObjectBox.create();
 
