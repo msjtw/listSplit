@@ -78,9 +78,12 @@ class AllListView extends ConsumerWidget {
                 ),
               ),
               onTap: () {
-                Navigator.of(context).push(MaterialPageRoute(
+                Navigator.of(context).push(
+                  MaterialPageRoute(
                     builder: (context) =>
-                        ShoppingListView(uuid: shoppingLists[index].uuid)));
+                        ShoppingListView(uuid: shoppingLists[index].uuid),
+                  ),
+                );
               },
               onLongPress: () async {
                 var list = await _nameAndDescriptionChange(

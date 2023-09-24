@@ -20,33 +20,33 @@ export 'package:objectbox/objectbox.dart'; // so that callers only have to impor
 
 final _entities = <ModelEntity>[
   ModelEntity(
-      id: const IdUid(1, 8550825164666097869),
+      id: const IdUid(1, 3019618153783657063),
       name: 'PastShopping',
-      lastPropertyId: const IdUid(5, 1831882746465090257),
+      lastPropertyId: const IdUid(5, 8687327242655106399),
       flags: 0,
       properties: <ModelProperty>[
         ModelProperty(
-            id: const IdUid(1, 697467335778101036),
+            id: const IdUid(1, 6363445294754311797),
             name: 'uuid',
             type: 6,
             flags: 1),
         ModelProperty(
-            id: const IdUid(2, 7008468896072430868),
+            id: const IdUid(2, 6626675316199874282),
             name: 'name',
             type: 9,
             flags: 0),
         ModelProperty(
-            id: const IdUid(3, 7311376767316223602),
+            id: const IdUid(3, 2847073411689375891),
             name: 'listUuid',
             type: 6,
             flags: 0),
         ModelProperty(
-            id: const IdUid(4, 3186792918369716541),
+            id: const IdUid(4, 4201881263586382761),
             name: 'time',
             type: 10,
             flags: 0),
         ModelProperty(
-            id: const IdUid(5, 1831882746465090257),
+            id: const IdUid(5, 8687327242655106399),
             name: 'cost',
             type: 8,
             flags: 0)
@@ -54,23 +54,23 @@ final _entities = <ModelEntity>[
       relations: <ModelRelation>[],
       backlinks: <ModelBacklink>[]),
   ModelEntity(
-      id: const IdUid(2, 1683697673671658703),
+      id: const IdUid(2, 3287739264395427135),
       name: 'ShoppingList',
-      lastPropertyId: const IdUid(3, 7625346957824610894),
+      lastPropertyId: const IdUid(3, 3228570069108142105),
       flags: 0,
       properties: <ModelProperty>[
         ModelProperty(
-            id: const IdUid(1, 2797859906855081671),
+            id: const IdUid(1, 8496039672551883851),
             name: 'uuid',
             type: 6,
             flags: 1),
         ModelProperty(
-            id: const IdUid(2, 3344218036960704037),
+            id: const IdUid(2, 2629943554178311386),
             name: 'name',
             type: 9,
             flags: 0),
         ModelProperty(
-            id: const IdUid(3, 7625346957824610894),
+            id: const IdUid(3, 3228570069108142105),
             name: 'description',
             type: 9,
             flags: 0)
@@ -78,44 +78,50 @@ final _entities = <ModelEntity>[
       relations: <ModelRelation>[],
       backlinks: <ModelBacklink>[]),
   ModelEntity(
-      id: const IdUid(3, 5737883765824196798),
+      id: const IdUid(3, 4435035389481498391),
       name: 'Thing',
-      lastPropertyId: const IdUid(5, 1157010360080552627),
+      lastPropertyId: const IdUid(5, 2589952375481243561),
       flags: 0,
       properties: <ModelProperty>[
         ModelProperty(
-            id: const IdUid(1, 7642939435893281204),
+            id: const IdUid(1, 5257108573219977931),
             name: 'uuid',
             type: 6,
             flags: 129),
         ModelProperty(
-            id: const IdUid(2, 7506754687412918577),
+            id: const IdUid(2, 7023419952520302320),
             name: 'name',
             type: 9,
             flags: 0),
         ModelProperty(
-            id: const IdUid(3, 892157129392384694),
+            id: const IdUid(3, 2162754488539459512),
             name: 'listUuid',
             type: 6,
             flags: 0),
         ModelProperty(
-            id: const IdUid(4, 5530245114678669107),
+            id: const IdUid(4, 6945259913852211026),
             name: 'bought',
             type: 1,
             flags: 0),
         ModelProperty(
-            id: const IdUid(5, 1157010360080552627),
+            id: const IdUid(5, 2589952375481243561),
             name: 'listId',
             type: 11,
             flags: 520,
-            indexId: const IdUid(1, 4027279383381141360),
+            indexId: const IdUid(1, 7714617981167963851),
             relationTarget: 'ShoppingList')
       ],
       relations: <ModelRelation>[],
       backlinks: <ModelBacklink>[])
 ];
 
-/// Open an ObjectBox store with the model declared in this file.
+/// Shortcut for [Store.new] that passes [getObjectBoxModel] and for Flutter
+/// apps by default a [directory] using `defaultStoreDirectory()` from the
+/// ObjectBox Flutter library.
+///
+/// Note: for desktop apps it is recommended to specify a unique [directory].
+///
+/// See [Store.new] for an explanation of all parameters.
 Future<Store> openStore(
         {String? directory,
         int? maxDBSizeInKB,
@@ -131,12 +137,13 @@ Future<Store> openStore(
         queriesCaseSensitiveDefault: queriesCaseSensitiveDefault,
         macosApplicationGroup: macosApplicationGroup);
 
-/// ObjectBox model definition, pass it to [Store] - Store(getObjectBoxModel())
+/// Returns the ObjectBox model definition for this project for use with
+/// [Store.new].
 ModelDefinition getObjectBoxModel() {
   final model = ModelInfo(
       entities: _entities,
-      lastEntityId: const IdUid(3, 5737883765824196798),
-      lastIndexId: const IdUid(1, 4027279383381141360),
+      lastEntityId: const IdUid(3, 4435035389481498391),
+      lastIndexId: const IdUid(1, 7714617981167963851),
       lastRelationId: const IdUid(0, 0),
       lastSequenceId: const IdUid(0, 0),
       retiredEntityUids: const [],
@@ -170,17 +177,22 @@ ModelDefinition getObjectBoxModel() {
         objectFromFB: (Store store, ByteData fbData) {
           final buffer = fb.BufferContext(fbData);
           final rootOffset = buffer.derefObject(0);
-
+          final listUuidParam =
+              const fb.Int64Reader().vTableGet(buffer, rootOffset, 8, 0);
+          final uuidParam =
+              const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0);
+          final nameParam = const fb.StringReader(asciiOptimization: true)
+              .vTableGet(buffer, rootOffset, 6, '');
+          final timeParam = DateTime.fromMillisecondsSinceEpoch(
+              const fb.Int64Reader().vTableGet(buffer, rootOffset, 10, 0));
+          final costParam =
+              const fb.Float64Reader().vTableGet(buffer, rootOffset, 12, 0);
           final object = PastShopping(
-              listUuid:
-                  const fb.Int64Reader().vTableGet(buffer, rootOffset, 8, 0),
-              uuid: const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0),
-              name: const fb.StringReader(asciiOptimization: true)
-                  .vTableGet(buffer, rootOffset, 6, ''),
-              time: DateTime.fromMillisecondsSinceEpoch(
-                  const fb.Int64Reader().vTableGet(buffer, rootOffset, 10, 0)),
-              cost: const fb.Float64Reader()
-                  .vTableGet(buffer, rootOffset, 12, 0));
+              listUuid: listUuidParam,
+              uuid: uuidParam,
+              name: nameParam,
+              time: timeParam,
+              cost: costParam);
 
           return object;
         }),
@@ -205,13 +217,15 @@ ModelDefinition getObjectBoxModel() {
         objectFromFB: (Store store, ByteData fbData) {
           final buffer = fb.BufferContext(fbData);
           final rootOffset = buffer.derefObject(0);
-
+          final nameParam = const fb.StringReader(asciiOptimization: true)
+              .vTableGet(buffer, rootOffset, 6, '');
+          final descriptionParam =
+              const fb.StringReader(asciiOptimization: true)
+                  .vTableGet(buffer, rootOffset, 8, '');
+          final uuidParam =
+              const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0);
           final object = ShoppingList(
-              name: const fb.StringReader(asciiOptimization: true)
-                  .vTableGet(buffer, rootOffset, 6, ''),
-              description: const fb.StringReader(asciiOptimization: true)
-                  .vTableGet(buffer, rootOffset, 8, ''),
-              uuid: const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0));
+              name: nameParam, description: descriptionParam, uuid: uuidParam);
 
           return object;
         }),
@@ -237,15 +251,19 @@ ModelDefinition getObjectBoxModel() {
         objectFromFB: (Store store, ByteData fbData) {
           final buffer = fb.BufferContext(fbData);
           final rootOffset = buffer.derefObject(0);
-
+          final nameParam = const fb.StringReader(asciiOptimization: true)
+              .vTableGet(buffer, rootOffset, 6, '');
+          final boughtParam =
+              const fb.BoolReader().vTableGet(buffer, rootOffset, 10, false);
+          final listUuidParam =
+              const fb.Int64Reader().vTableGet(buffer, rootOffset, 8, 0);
+          final uuidParam =
+              const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0);
           final object = Thing(
-              name: const fb.StringReader(asciiOptimization: true)
-                  .vTableGet(buffer, rootOffset, 6, ''),
-              bought: const fb.BoolReader()
-                  .vTableGet(buffer, rootOffset, 10, false),
-              listUuid:
-                  const fb.Int64Reader().vTableGet(buffer, rootOffset, 8, 0),
-              uuid: const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0));
+              name: nameParam,
+              bought: boughtParam,
+              listUuid: listUuidParam,
+              uuid: uuidParam);
           object.list.targetId =
               const fb.Int64Reader().vTableGet(buffer, rootOffset, 12, 0);
           object.list.attach(store);

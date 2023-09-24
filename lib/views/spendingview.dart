@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:list_split/services/save/objectbox.g.dart';
 
-import '../providers/currentviewprovider.dart';
 import '../services/bnb.dart';
 
 class SpendingView extends ConsumerStatefulWidget {

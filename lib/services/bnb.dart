@@ -31,6 +31,10 @@ class _BNBState extends ConsumerState<BNB> {
           icon: Icon(Icons.payments),
           label: 'Spendings',
         ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.payments),
+          label: 'Social',
+        ),
       ],
       currentIndex: _selectedIndex,
       onTap: (int index) =>
