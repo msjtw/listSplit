@@ -32,8 +32,8 @@ class _BNBState extends ConsumerState<BNB> {
           label: 'Spendings',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.payments),
-          label: 'Social',
+          icon: Icon(Icons.groups),
+          label: 'Groups',
         ),
       ],
       currentIndex: _selectedIndex,

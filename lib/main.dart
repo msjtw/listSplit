@@ -7,14 +7,11 @@ import 'services/save/objectbox.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
-import 'services/firebase/auth_service.dart';
-
 //import 'theme.dart';
 import 'views/alllistview.dart';
 import 'views/socialview.dart';
 
 late ObjectBox objectbox;
-late AuthService firebaseAuth;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,7 +21,6 @@ Future<void> main() async {
   );
 
   objectbox = await ObjectBox.create();
-  firebaseAuth = AuthService();
 
   runApp(
     const ProviderScope(
@@ -76,7 +72,7 @@ class HomePage extends ConsumerWidget {
       case 1:
         return const SpendingView();
       case 2:
-        return const SocialView();
+        return const AuthStateCheck();
     }
     return Container();
   }

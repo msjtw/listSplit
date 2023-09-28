@@ -1,22 +1,57 @@
 import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthService {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  const AuthService(this._auth);
 
-  //sign in anon
+  final FirebaseAuth _auth;
 
-  Future anonSingIn() async {
-    print('dotarlo');
+  Stream<User?> get authStateChange => _auth.authStateChanges();
+
+  Future<User?> signInWithEmailAndPassword(
+      String email, String password) async {
     try {
-      var result = await _auth.signInAnonymously();
-      var user = result.user;
-      print(user);
-      print('object');
-      return user;
-    } catch (e) {
+      final result = await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      return result.user;
+    } on FirebaseAuthException catch (e) {
+      // if (e.code == 'user-not-found') {
+      //   throw AuthException('User not found');
+      // } else if (e.code == 'wrong-password') {
+      //   throw AuthException('Wrong password');
+      // } else {
+      //   print(e);
+      //   throw AuthException('An error occured. Please try again later');
+      // }
+      print(e);
       return null;
     }
   }
 
-  //sign in email
+  Future<User?> signInAnon() async {
+    try {
+      final result = await _auth.signInAnonymously();
+      return result.user;
+    } on FirebaseAuthException catch (e) {
+      print(e);
+      //throw AuthException('An error occured. Please try again later');
+      return null;
+    }
+  }
+
+  Future<void> signOut() async {
+    await _auth.signOut();
+  }
+}
+
+class AuthException implements Exception {
+  final String message;
+
+  AuthException(this.message);
+
+  @override
+  String toString() {
+    return message;
+  }
 }

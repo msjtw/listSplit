@@ -43,9 +43,9 @@ class _ShoppingViewState extends State<ShoppingView> {
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            Row(
+            const Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: const [
+              children: [
                 Icon(Icons.list_alt),
                 Icon(Icons.shopping_cart_checkout),
               ],

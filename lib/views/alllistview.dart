@@ -18,7 +18,7 @@ class AllListView extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Your shopping lists'),
       ),
-      bottomNavigationBar: BNB(),
+      bottomNavigationBar: const BNB(),
       body: ListView.builder(
         itemCount: shoppingLists.length,
         itemBuilder: (BuildContext context, int index) {
