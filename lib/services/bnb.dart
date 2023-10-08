@@ -25,11 +25,11 @@ class _BNBState extends ConsumerState<BNB> {
       items: const <BottomNavigationBarItem>[
         BottomNavigationBarItem(
           icon: Icon(Icons.text_snippet),
-          label: 'Notes',
+          label: 'Lists',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.payments),
-          label: 'Spendings',
+          label: 'Expenses',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.groups),

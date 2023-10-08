@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../providers/shoppinglistprovider.dart';
 import '../services/correctcost.dart';
-import '../services/models.dart';
+import '../services/models/objectbox_models.dart';
 
 class ShoppingView extends StatefulWidget {
   final PastShopping pastShopping;

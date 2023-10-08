@@ -1,4 +1,4 @@
-import '../models.dart';
+import '../models/objectbox_models.dart';
 import '../save/objectbox.g.dart'; // created by `flutter pub run build_runner build`
 
 class ObjectBox {

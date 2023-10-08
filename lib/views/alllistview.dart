@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../providers/shoppinglistprovider.dart';
 import '../services/bnb.dart';
-import '../services/models.dart';
+import '../services/models/objectbox_models.dart';
 import '../services/you_sure_prompt.dart';
 import 'shoppinglistview.dart';
 
