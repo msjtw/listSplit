@@ -1,4 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:list_split/services/save/objectbox.g.dart';
+
+import '../models/firestore_models.dart';
 
 class FirestoreDB {
   FirestoreDB(this._firestore);
@@ -8,14 +11,22 @@ class FirestoreDB {
     return _firestore.collection("groups").snapshots();
   }
 
-  Future<bool> addNewGroup(String userUid) async {
-    CollectionReference groups = _firestore.collection('groups');
+  Stream<QuerySnapshot>? userGroups(String userUid) {
+    return _firestore
+        .collection("groups")
+        .withConverter(
+            fromFirestore: Group.fromFirestore,
+            toFirestore: (Group group, _) => group.toFirestore())
+        .where("usersUids", arrayContains: userUid)
+        .snapshots();
+  }
+
+  Future<bool> addNewGroup(Group group) async {
+    final ref = _firestore.collection("groups").withConverter(
+        fromFirestore: Group.fromFirestore,
+        toFirestore: (Group group, _) => group.toFirestore());
     try {
-      await groups.add(
-        {
-          'name': 'group.name',
-        },
-      ).then((group) => addUserToGroup(userUid, group.id));
+      await ref.add(group);
       return true;
     } catch (e) {
       return Future.error(e);

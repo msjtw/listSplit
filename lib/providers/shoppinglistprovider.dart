@@ -8,7 +8,7 @@ class ShoppingListsNotifier extends Notifier<List<ShoppingList>> {
   List<ShoppingList> build() {
     return objectbox.readAll();
   }
-
+  
   void addList(ShoppingList listRef) {
     objectbox.saveShoppingList(listRef);
     state = [...state, listRef];

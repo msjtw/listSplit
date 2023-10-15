@@ -41,6 +41,7 @@ class _SocialViewState extends ConsumerState<SocialView> {
   Widget build(BuildContext context) {
     final groupList = ref.watch(groupsProvider);
 
+    ref.watch(firestoreProvider).userGroups(widget.user.uid);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Your groups'),
