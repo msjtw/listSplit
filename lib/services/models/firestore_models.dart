@@ -1,12 +1,22 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:uuid/uuid.dart';
 
 class Group {
-  final String? uid;
-  final String? name;
+  final String uid;
+  final String name;
+  final String description;
   final List<String>? usersUids;
   final List<String>? things;
 
-  Group({this.uid, this.name, this.usersUids, this.things});
+  Group(
+      {String? uid,
+      String? name,
+      String? description,
+      this.usersUids,
+      this.things})
+      : uid = uid ?? const Uuid().v4(),
+        name = name ?? 'name',
+        description = description ?? '';
 
   factory Group.fromFirestore(
     DocumentSnapshot<Map<String, dynamic>> snapshot,
@@ -16,6 +26,7 @@ class Group {
     return Group(
       uid: data?['uid'],
       name: data?['name'],
+      description: data?['description'],
       usersUids:
           data?['usersUids'] is Iterable ? List.from(data?['usersUids']) : null,
       things: data?['things'] is Iterable ? List.from(data?['things']) : null,
@@ -24,8 +35,9 @@ class Group {
 
   Map<String, dynamic> toFirestore() {
     return {
-      if (uid != null) "uid": uid,
-      if (name != null) "name": name,
+      "uid": uid,
+      "name": name,
+      "description": description,
       if (usersUids != null) "usersUids": usersUids,
       if (things != null) "things": things,
     };

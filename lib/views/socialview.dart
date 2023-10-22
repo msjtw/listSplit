@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:list_split/providers/authprovider.dart';
 import 'package:list_split/providers/firestore_provider.dart';
+import 'package:list_split/services/models/firestore_models.dart';
 import 'package:list_split/views/auth_views/login_view.dart';
 
 import '../services/bnb.dart';
@@ -39,9 +40,9 @@ class SocialView extends ConsumerStatefulWidget {
 class _SocialViewState extends ConsumerState<SocialView> {
   @override
   Widget build(BuildContext context) {
-    final groupList = ref.watch(groupsProvider);
+    final groupList = ref.watch(userGroupsProvider(widget.user));
 
-    ref.watch(firestoreProvider).userGroups(widget.user.uid);
+    // ref.watch(firestoreProvider).userGroups(widget.user.uid);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Your groups'),
@@ -79,8 +80,10 @@ class _SocialViewState extends ConsumerState<SocialView> {
       ),
       bottomNavigationBar: const BNB(),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () =>
-            ref.read(firestoreProvider).addNewGroup(widget.user.uid),
+        onPressed: () => ref.read(firestoreProvider).addNewGroup(Group(
+              name: 'new group 2',
+              usersUids: [widget.user.uid],
+            )),
         label: const Text('New List'),
         icon: const Icon(Icons.add),
       ),

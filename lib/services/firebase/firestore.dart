@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:list_split/services/save/objectbox.g.dart';
 
 import '../models/firestore_models.dart';
 
@@ -11,7 +10,7 @@ class FirestoreDB {
     return _firestore.collection("groups").snapshots();
   }
 
-  Stream<QuerySnapshot>? userGroups(String userUid) {
+  Stream<QuerySnapshot> userGroups(String userUid) {
     return _firestore
         .collection("groups")
         .withConverter(

@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/shoppinglistprovider.dart';
 import '../services/bnb.dart';
 import '../services/models/objectbox_models.dart';
-import '../services/you_sure_prompt.dart';
+import '../services/shoppinglist_name_prompt.dart';
 import 'shoppinglistview.dart';
 
 class AllListView extends ConsumerWidget {
@@ -49,7 +49,7 @@ class AllListView extends ConsumerWidget {
                           ),
                           IconButton(
                               onPressed: () async {
-                                var list = await _nameAndDescriptionChange(
+                                var list = await nameAndDescriptionChange(
                                     context, ref, shoppingLists[index].uuid);
                                 if (list != null) {
                                   ref
@@ -86,7 +86,7 @@ class AllListView extends ConsumerWidget {
                 );
               },
               onLongPress: () async {
-                var list = await _nameAndDescriptionChange(
+                var list = await nameAndDescriptionChange(
                     context, ref, shoppingLists[index].uuid);
                 if (list != null) {
                   ref.read(shoppingListsProvider.notifier).editList(list);
@@ -98,7 +98,7 @@ class AllListView extends ConsumerWidget {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
-          _nameAndDescriptionChange(context, ref, null).then(
+          nameAndDescriptionChange(context, ref, null).then(
             (list) {
               if (list != null) {
                 ref.read(shoppingListsProvider.notifier).addList(list);
@@ -113,97 +113,5 @@ class AllListView extends ConsumerWidget {
         icon: const Icon(Icons.add),
       ),
     );
-  }
-
-  Future<ShoppingList?> _nameAndDescriptionChange(
-      BuildContext context, ref, int? listUuid) async {
-    final nameController = TextEditingController();
-    final descriptionController = TextEditingController();
-
-    late ShoppingList list;
-
-    if (listUuid == null) {
-      list = ShoppingList(name: '');
-    } else {
-      list = ref
-          .read(shoppingListsProvider)
-          .where((list) => list.uuid == listUuid)
-          .first;
-    }
-
-    if (listUuid != null) {
-      nameController.text = list.name;
-      descriptionController.text = list.description;
-    }
-
-    return showDialog<ShoppingList>(
-        context: context,
-        builder: (context) {
-          return WillPopScope(
-            onWillPop: () async {
-              return false;
-            },
-            child: AlertDialog(
-              title: Center(
-                child: Text((listUuid == null
-                    ? 'Create a new shoppinglist'
-                    : 'Change details')),
-              ),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    controller: nameController,
-                    decoration: const InputDecoration(hintText: "add name"),
-                  ),
-                  TextField(
-                    controller: descriptionController,
-                    decoration:
-                        const InputDecoration(hintText: "add description"),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      IconButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          icon: const Icon(Icons.cancel)),
-                      IconButton(
-                          onPressed: () {
-                            if (nameController.text != '') {
-                              Navigator.pop(
-                                  context,
-                                  list.copyWith(
-                                    name: nameController.text,
-                                    description: descriptionController.text,
-                                  ));
-                            }
-                          },
-                          icon: const Icon(Icons.done)),
-                    ],
-                  ),
-                  (listUuid != null
-                      ? ElevatedButton.icon(
-                          onPressed: () async {
-                            bool? areTheySure = await youSure(context);
-                            if (areTheySure == true) {
-                              Navigator.pop(context);
-                              ref
-                                  .read(shoppingListsProvider.notifier)
-                                  .removelist(list);
-                            }
-                          },
-                          icon: const Icon(Icons.delete),
-                          label: const Text('delete list'),
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.red),
-                        )
-                      : Container())
-                ],
-              ),
-            ),
-          );
-        });
   }
 }
