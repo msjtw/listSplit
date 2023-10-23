@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:list_split/providers/authprovider.dart';
 import 'package:list_split/providers/firestore_provider.dart';
+import 'package:list_split/services/expandable_FAB.dart';
+import 'package:list_split/services/group_name_prompt.dart';
 import 'package:list_split/services/models/firestore_models.dart';
 import 'package:list_split/views/auth_views/login_view.dart';
 
@@ -79,20 +81,34 @@ class _SocialViewState extends ConsumerState<SocialView> {
         ],
       ),
       bottomNavigationBar: const BNB(),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => ref.read(firestoreProvider).addNewGroup(Group(
-              name: 'new group 2',
-              usersUids: [widget.user.uid],
-            )),
-        label: const Text('New List'),
-        icon: const Icon(Icons.add),
+      floatingActionButton: ExpandableFab(
+        distance: 100.0,
+        children: [
+          ActionButton(
+            onPressed: () async {
+              groupNameChange(context, Group(usersUids: [widget.user.uid]))
+                  .then(
+                (group) {
+                  if (group != null) {
+                    ref.read(firestoreProvider).addNewGroup(group);
+                  }
+                },
+              );
+            },
+            icon: const Icon(Icons.add),
+          ),
+          ActionButton(
+            onPressed: () => print('DEF'),
+            icon: const Icon(Icons.insert_photo),
+          ),
+        ],
       ),
       body: groupList.when(
         data: (data) {
           return ListView.builder(
               itemCount: data.docs.length,
               itemBuilder: (BuildContext context, int index) {
-                return Text('${data.docs[index].id}');
+                return groupWidget(context, data.docs[index].data());
               });
         },
         error: (error, stackTrace) => const Center(
@@ -100,6 +116,44 @@ class _SocialViewState extends ConsumerState<SocialView> {
         ),
         loading: () => const Center(
           child: CircularProgressIndicator(),
+        ),
+      ),
+    );
+  }
+
+  Widget groupWidget(BuildContext context, Group group) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Container(
+        decoration: const BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(8)),
+          color: Colors.grey,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(4.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                group.name,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20.0,
+                ),
+              ),
+              const SizedBox(height: 10),
+              (group.description.isNotEmpty
+                  ? Column(
+                      children: [
+                        Text(group.description),
+                        const SizedBox(height: 10),
+                      ],
+                    )
+                  : Container()),
+              Text(
+                  '${group.usersUids.length} user${group.usersUids.length == 1 ? '' : 's'}')
+            ],
+          ),
         ),
       ),
     );

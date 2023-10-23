@@ -10,7 +10,7 @@ class FirestoreDB {
     return _firestore.collection("groups").snapshots();
   }
 
-  Stream<QuerySnapshot> userGroups(String userUid) {
+  Stream<QuerySnapshot<Group>> userGroups(String userUid) {
     return _firestore
         .collection("groups")
         .withConverter(
