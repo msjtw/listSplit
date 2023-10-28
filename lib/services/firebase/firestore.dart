@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import '../models/firestore_models.dart';
 
@@ -25,22 +26,29 @@ class FirestoreDB {
         fromFirestore: Group.fromFirestore,
         toFirestore: (Group group, _) => group.toFirestore());
     try {
-      await ref.add(group);
+      await ref.doc(group.uid).set(group);
       return true;
     } catch (e) {
       return Future.error(e);
     }
   }
 
-  Future<bool> addUserToGroup(String userUid, String groupUid) async {
-    CollectionReference userToGroup = _firestore.collection('userToGroup');
+  Future<bool> addUserToGroup(User user, String groupUid) async {
+    final ref = _firestore.collection("groups").doc(groupUid).withConverter(
+        fromFirestore: Group.fromFirestore,
+        toFirestore: (Group group, _) => group.toFirestore());
+    final groupSnap = await ref.get();
+    final group = groupSnap.data();
+    if (group == null) {
+      return Future.error('group not found');
+    }
+    if (group.usersUids.contains(user.uid)) {
+      return Future.error('user already in group');
+    }
     try {
-      await userToGroup.add(
-        {
-          'user': userUid,
-          'group': groupUid,
-        },
-      );
+      await ref.update({
+        'usersUids': FieldValue.arrayUnion([user.uid])
+      });
       return true;
     } catch (e) {
       return Future.error(e);
@@ -61,8 +69,8 @@ class FirestoreDB {
 //     }
 //   }
 
-// // Edit a Movie
-//   Future<bool> editMovie(Movie m, String movieId) async {
+// Edit a Movie
+//   Future<bool> editGroup(G, String movieId) async {
 //     _movies = _firestore.collection('movies');
 //     try {
 //       await _movies

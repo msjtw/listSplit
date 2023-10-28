@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:list_split/services/prompts/shoppinglist_name_prompt.dart';
 
 import '../providers/shoppinglistprovider.dart';
 import '../services/bnb.dart';
 import '../services/models/objectbox_models.dart';
-import '../services/shoppinglist_name_prompt.dart';
-import 'shoppinglistview.dart';
+import 'local_shoppinglist/shoppinglistview.dart';
 
 class AllListView extends ConsumerWidget {
   const AllListView({super.key});

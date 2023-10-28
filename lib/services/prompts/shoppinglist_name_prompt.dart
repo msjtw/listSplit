@@ -1,15 +1,30 @@
 import 'package:flutter/material.dart';
-import 'package:list_split/services/models/firestore_models.dart';
-import 'package:list_split/services/you_sure_prompt.dart';
+import 'package:list_split/providers/shoppinglistprovider.dart';
+import 'package:list_split/services/models/objectbox_models.dart';
+import 'package:list_split/services/prompts/you_sure_prompt.dart';
 
-Future<Group?> groupNameChange(BuildContext context, Group group) async {
+Future<ShoppingList?> nameAndDescriptionChange(
+    BuildContext context, ref, int? listUuid) async {
   final nameController = TextEditingController();
   final descriptionController = TextEditingController();
 
-  nameController.text = group.name;
-  descriptionController.text = group.description;
+  late ShoppingList list;
 
-  return showDialog<Group>(
+  if (listUuid == null) {
+    list = ShoppingList(name: '');
+  } else {
+    list = ref
+        .read(shoppingListsProvider)
+        .where((list) => list.uuid == listUuid)
+        .first;
+  }
+
+  if (listUuid != null) {
+    nameController.text = list.name;
+    descriptionController.text = list.description;
+  }
+
+  return showDialog<ShoppingList>(
       context: context,
       builder: (context) {
         return WillPopScope(
@@ -17,8 +32,10 @@ Future<Group?> groupNameChange(BuildContext context, Group group) async {
             return false;
           },
           child: AlertDialog(
-            title: const Center(
-              child: Text('Change group details'),
+            title: Center(
+              child: Text((listUuid == null
+                  ? 'Create a new shoppinglist'
+                  : 'Change details')),
             ),
             content: Column(
               mainAxisSize: MainAxisSize.min,
@@ -44,24 +61,27 @@ Future<Group?> groupNameChange(BuildContext context, Group group) async {
                         onPressed: () {
                           if (nameController.text != '') {
                             Navigator.pop(
-                              context,
-                              group.copyWith(
-                                name: nameController.text,
-                                description: descriptionController.text,
-                              ),
-                            );
+                                context,
+                                list.copyWith(
+                                  name: nameController.text,
+                                  description: descriptionController.text,
+                                ));
                           }
                         },
                         icon: const Icon(Icons.done)),
                   ],
                 ),
-                (group.name.isNotEmpty
+                (listUuid != null
                     ? ElevatedButton.icon(
                         onPressed: () async {
-                          bool? areTheySure = await youSure(context);
-                          if (areTheySure == true) {
-                            Navigator.pop(context);
-                          }
+                          await youSure(context).then((areTheySure) {
+                            if (areTheySure == true) {
+                              Navigator.pop(context);
+                              ref
+                                  .read(shoppingListsProvider.notifier)
+                                  .removelist(list);
+                            }
+                          });
                         },
                         icon: const Icon(Icons.delete),
                         label: const Text('delete list'),

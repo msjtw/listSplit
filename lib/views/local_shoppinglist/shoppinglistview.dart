@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:list_split/services/prompts/you_sure_prompt.dart';
 
-import '../providers/shoppinglistprovider.dart';
-import '../services/datestring.dart';
-import '../services/models/objectbox_models.dart';
-import '../services/you_sure_prompt.dart';
+import '../../providers/shoppinglistprovider.dart';
+import '../../services/datestring.dart';
+import '../../services/models/objectbox_models.dart';
 import 'shoppingview.dart';
 
 class ShoppingListView extends ConsumerStatefulWidget {
@@ -104,21 +104,23 @@ class _ShoppingListViewState extends ConsumerState<ShoppingListView> {
                           padding: const EdgeInsets.all(4),
                           child: GestureDetector(
                             onLongPress: () async {
-                              int? action = await editPrompt(context);
-                              if (action == 0) {
-                                ref
-                                    .read(shoppingListsProvider.notifier)
-                                    .removeShopping(list.pastShoppings[index]);
-                              } else if (action == 1) {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (context) => ShoppingView(
-                                      list: list,
-                                      pastShopping: list.pastShoppings[index],
+                              await editPrompt(context).then((action) {
+                                if (action == 0) {
+                                  ref
+                                      .read(shoppingListsProvider.notifier)
+                                      .removeShopping(
+                                          list.pastShoppings[index]);
+                                } else if (action == 1) {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) => ShoppingView(
+                                        list: list,
+                                        pastShopping: list.pastShoppings[index],
+                                      ),
                                     ),
-                                  ),
-                                );
-                              }
+                                  );
+                                }
+                              });
                             },
                             child: Container(
                               decoration: const BoxDecoration(
@@ -318,12 +320,13 @@ class _ShoppingListViewState extends ConsumerState<ShoppingListView> {
             actions: [
               TextButton.icon(
                 onPressed: () async {
-                  bool? sure = await youSure(context);
-                  if (sure == true) {
-                    Navigator.pop(context, 0);
-                  } else {
-                    Navigator.pop(context);
-                  }
+                  await youSure(context).then((sure) {
+                    if (sure == true) {
+                      Navigator.pop(context, 0);
+                    } else {
+                      Navigator.pop(context);
+                    }
+                  });
                 },
                 icon: const Icon(Icons.delete),
                 label: const Text('delete'),

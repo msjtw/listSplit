@@ -22,6 +22,8 @@ dependencies:
   firebase_core: ^2.13.1
   firebase_auth: ^4.10.0
   cloud_firestore: ^4.9.2
+  shortid: ^0.1.2
+  nanoid: ^1.0.0
 
 
 dev_dependencies:

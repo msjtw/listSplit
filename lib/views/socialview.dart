@@ -1,11 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:list_split/providers/authprovider.dart';
 import 'package:list_split/providers/firestore_provider.dart';
 import 'package:list_split/services/expandable_FAB.dart';
-import 'package:list_split/services/group_name_prompt.dart';
 import 'package:list_split/services/models/firestore_models.dart';
+import 'package:list_split/services/prompts/add_user_prompt.dart';
+import 'package:list_split/services/prompts/group_name_prompt.dart';
 import 'package:list_split/views/auth_views/login_view.dart';
 
 import '../services/bnb.dart';
@@ -98,8 +100,14 @@ class _SocialViewState extends ConsumerState<SocialView> {
             icon: const Icon(Icons.add),
           ),
           ActionButton(
-            onPressed: () => print('DEF'),
-            icon: const Icon(Icons.insert_photo),
+            onPressed: () async {
+              getGroupUidPrompt(context).then((uid) {
+                if (uid != null) {
+                  ref.read(firestoreProvider).addUserToGroup(widget.user, uid);
+                }
+              });
+            },
+            icon: const Icon(Icons.person_add),
           ),
         ],
       ),
@@ -124,35 +132,55 @@ class _SocialViewState extends ConsumerState<SocialView> {
   Widget groupWidget(BuildContext context, Group group) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Container(
-        decoration: const BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(8)),
-          color: Colors.grey,
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(4.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                group.name,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20.0,
-                ),
+      child: GestureDetector(
+        onDoubleTap: () async {
+          await Clipboard.setData(ClipboardData(text: group.uid)).then(
+            (value) => ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('uid copied'),
               ),
-              const SizedBox(height: 10),
-              (group.description.isNotEmpty
-                  ? Column(
-                      children: [
-                        Text(group.description),
-                        const SizedBox(height: 10),
-                      ],
-                    )
-                  : Container()),
-              Text(
-                  '${group.usersUids.length} user${group.usersUids.length == 1 ? '' : 's'}')
-            ],
+            ),
+          );
+        },
+        onLongPress: () {
+          groupNameChange(context, group).then(
+            (group) {
+              if (group != null) {
+                ref.read(firestoreProvider).addNewGroup(group);
+              }
+            },
+          );
+        },
+        child: Container(
+          decoration: const BoxDecoration(
+            borderRadius: BorderRadius.all(Radius.circular(8)),
+            color: Colors.grey,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  group.name,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20.0,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                (group.description.isNotEmpty
+                    ? Column(
+                        children: [
+                          Text(group.description),
+                          const SizedBox(height: 10),
+                        ],
+                      )
+                    : Container()),
+                Text(
+                    '${group.usersUids.length} user${group.usersUids.length == 1 ? '' : 's'}')
+              ],
+            ),
           ),
         ),
       ),

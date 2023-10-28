@@ -15,17 +15,8 @@ class AuthService {
         password: password,
       );
       return result.user;
-    } on FirebaseAuthException catch (e) {
-      // if (e.code == 'user-not-found') {
-      //   throw AuthException('User not found');
-      // } else if (e.code == 'wrong-password') {
-      //   throw AuthException('Wrong password');
-      // } else {
-      //   print(e);
-      //   throw AuthException('An error occured. Please try again later');
-      // }
-      print(e);
-      return null;
+    } catch (e) {
+      return Future.error(e);
     }
   }
 
@@ -33,25 +24,16 @@ class AuthService {
     try {
       final result = await _auth.signInAnonymously();
       return result.user;
-    } on FirebaseAuthException catch (e) {
-      print(e);
-      //throw AuthException('An error occured. Please try again later');
-      return null;
+    } catch (e) {
+      return Future.error(e);
     }
   }
 
   Future<void> signOut() async {
-    await _auth.signOut();
-  }
-}
-
-class AuthException implements Exception {
-  final String message;
-
-  AuthException(this.message);
-
-  @override
-  String toString() {
-    return message;
+    try {
+      await _auth.signOut();
+    } catch (e) {
+      return Future.error(e);
+    }
   }
 }

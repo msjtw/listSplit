@@ -14,8 +14,9 @@ class ExpandableFab extends StatefulWidget {
   final bool? initialOpen;
   final double distance;
   final List<Widget> children;
+
   @override
-  _ExpandableFabState createState() => _ExpandableFabState();
+  State<ExpandableFab> createState() => _ExpandableFabState();
 }
 
 class _ExpandableFabState extends State<ExpandableFab>
