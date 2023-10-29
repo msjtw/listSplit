@@ -7,6 +7,8 @@ class AuthService {
 
   Stream<User?> get authStateChange => _auth.authStateChanges();
 
+  User? get getUser => _auth.currentUser;
+
   Future<User?> signInWithEmailAndPassword(
       String email, String password) async {
     try {

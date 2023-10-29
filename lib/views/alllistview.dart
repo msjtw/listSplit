@@ -23,7 +23,7 @@ class AllListView extends ConsumerWidget {
         itemCount: shoppingLists.length,
         itemBuilder: (BuildContext context, int index) {
           return Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.fromLTRB(8.0, 8, 8, 0),
             child: GestureDetector(
               child: Container(
                 decoration: const BoxDecoration(
@@ -60,14 +60,18 @@ class AllListView extends ConsumerWidget {
                               icon: const Icon(Icons.more_vert))
                         ],
                       ),
-                      const SizedBox(height: 10),
-                      (shoppingLists[index].description == ''
+                      const SizedBox(height: 0),
+                      (shoppingLists[index].description.isEmpty
                           ? Container(
                               height: 0,
                             )
                           : Column(
                               children: [
-                                Text(shoppingLists[index].description),
+                                Text(
+                                  shoppingLists[index].description,
+                                  style: const TextStyle(
+                                      fontStyle: FontStyle.italic),
+                                ),
                                 const SizedBox(height: 10),
                               ],
                             )),

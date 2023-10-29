@@ -16,14 +16,14 @@ Future<bool?> youSure(BuildContext context) async {
                   Navigator.pop(context, true);
                 },
                 icon: const Icon(Icons.done),
-                label: const Text('yep'),
+                label: const Text('yes'),
               ),
               TextButton.icon(
                 onPressed: () {
                   Navigator.pop(context, false);
                 },
                 icon: const Icon(Icons.cancel),
-                label: const Text('hell no'),
+                label: const Text('no'),
               ),
             ],
           ),

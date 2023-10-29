@@ -9,6 +9,7 @@ import 'package:list_split/services/models/firestore_models.dart';
 import 'package:list_split/services/prompts/add_user_prompt.dart';
 import 'package:list_split/services/prompts/group_name_prompt.dart';
 import 'package:list_split/views/auth_views/login_view.dart';
+import 'package:list_split/views/group_view.dart';
 
 import '../services/bnb.dart';
 
@@ -92,7 +93,14 @@ class _SocialViewState extends ConsumerState<SocialView> {
                   .then(
                 (group) {
                   if (group != null) {
-                    ref.read(firestoreProvider).addNewGroup(group);
+                    ref.read(firestoreProvider).addNewGroup(group).catchError(
+                      (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(e)),
+                        );
+                        return false;
+                      },
+                    );
                   }
                 },
               );
@@ -103,7 +111,17 @@ class _SocialViewState extends ConsumerState<SocialView> {
             onPressed: () async {
               getGroupUidPrompt(context).then((uid) {
                 if (uid != null) {
-                  ref.read(firestoreProvider).addUserToGroup(widget.user, uid);
+                  ref
+                      .read(firestoreProvider)
+                      .addUserToGroup(widget.user, uid)
+                      .catchError(
+                    (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(e)),
+                      );
+                      return false;
+                    },
+                  );
                 }
               });
             },
@@ -131,8 +149,15 @@ class _SocialViewState extends ConsumerState<SocialView> {
 
   Widget groupWidget(BuildContext context, Group group) {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.fromLTRB(8.0, 8, 8, 0),
       child: GestureDetector(
+        onTap: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => GroupView(group.uid),
+            ),
+          );
+        },
         onDoubleTap: () async {
           await Clipboard.setData(ClipboardData(text: group.uid)).then(
             (value) => ScaffoldMessenger.of(context).showSnackBar(
@@ -172,7 +197,10 @@ class _SocialViewState extends ConsumerState<SocialView> {
                 (group.description.isNotEmpty
                     ? Column(
                         children: [
-                          Text(group.description),
+                          Text(
+                            group.description,
+                            style: const TextStyle(fontStyle: FontStyle.italic),
+                          ),
                           const SizedBox(height: 10),
                         ],
                       )

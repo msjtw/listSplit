@@ -8,11 +8,21 @@ final firestoreProvider = Provider<FirestoreDB>((ref) {
   return FirestoreDB(FirebaseFirestore.instance);
 });
 
-final groupsProvider = StreamProvider<QuerySnapshot>((ref) {
+final allGroupsProvider = StreamProvider<QuerySnapshot>((ref) {
   return ref.read(firestoreProvider).allGroups;
 });
 
-final userGroupsProvider = StreamProvider.autoDispose.family<QuerySnapshot<Group>, User>((ref, User user) {
+final userGroupsProvider = StreamProvider.autoDispose
+    .family<QuerySnapshot<Group>, User>((ref, User user) {
   return ref.read(firestoreProvider).userGroups(user.uid);
 });
+
+final groupProvider = StreamProvider.autoDispose
+    .family<DocumentSnapshot<Group>, String>((ref, String groupUid) {
+  return ref.read(firestoreProvider).getGroup(groupUid);
+});
+
+// final userName = Provider.autoDispose.family<FirestoreDB, String>((ref, String uid) {
+//   return ref.read(firestoreProvider).userName(uid);
+// });
 

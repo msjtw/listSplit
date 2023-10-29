@@ -21,6 +21,16 @@ class FirestoreDB {
         .snapshots();
   }
 
+  Stream<DocumentSnapshot<Group>> getGroup(String groupUid) {
+    return _firestore
+        .collection("groups")
+        .withConverter(
+            fromFirestore: Group.fromFirestore,
+            toFirestore: (Group group, _) => group.toFirestore())
+        .doc(groupUid)
+        .snapshots();
+  }
+
   Future<bool> addNewGroup(Group group) async {
     final ref = _firestore.collection("groups").withConverter(
         fromFirestore: Group.fromFirestore,
@@ -48,6 +58,25 @@ class FirestoreDB {
     try {
       await ref.update({
         'usersUids': FieldValue.arrayUnion([user.uid])
+      });
+      return true;
+    } catch (e) {
+      return Future.error(e);
+    }
+  }
+
+  Future<bool> leaveGroup(User user, String groupUid) async {
+    final ref = _firestore.collection("groups").doc(groupUid).withConverter(
+        fromFirestore: Group.fromFirestore,
+        toFirestore: (Group group, _) => group.toFirestore());
+    final groupSnap = await ref.get();
+    final group = groupSnap.data();
+    if (group == null) {
+      return Future.error('group not found');
+    }
+    try {
+      await ref.update({
+        'usersUids': FieldValue.arrayRemove([user.uid])
       });
       return true;
     } catch (e) {

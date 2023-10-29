@@ -17,7 +17,7 @@ class Group {
       String? description,
       List<String>? usersUids,
       List<FirestoreShoppingList>? shoppingLists})
-      : uid = uid ?? nanoid(15),
+      : uid = uid ?? nanoid(12),
         name = name ?? '',
         description = description ?? '',
         usersUids = usersUids ?? [],
@@ -36,7 +36,8 @@ class Group {
           data?['usersUids'] is Iterable ? List.from(data?['usersUids']) : [],
       shoppingLists: data?['shoppingLists'] is Iterable
           ? List.from(data?['shoppingLists'])
-              .map((shoppinglist) => FirestoreShoppingList.fromJson(shoppinglist))
+              .map((shoppinglist) =>
+                  FirestoreShoppingList.fromJson(shoppinglist))
               .toList()
           : [],
     );
@@ -158,7 +159,8 @@ class FirestoreShoppingList {
           : [],
       pastShoppings: data['pastShoppings'] is Iterable
           ? List.from(data['pastShoppings'])
-              .map((pastShopping) => FirestorePastShopping.fromJson(pastShopping))
+              .map((pastShopping) =>
+                  FirestorePastShopping.fromJson(pastShopping))
               .toList()
           : [],
     );

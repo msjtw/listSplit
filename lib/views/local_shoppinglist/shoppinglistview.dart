@@ -192,7 +192,10 @@ class _ShoppingListViewState extends ConsumerState<ShoppingListView> {
           children: [
             GestureDetector(
               onTap: () => _descriptionChange(context),
-              child: Text(list.description),
+              child: Text(
+                list.description,
+                style: const TextStyle(fontStyle: FontStyle.italic),
+              ),
             ),
             Expanded(
               child: Padding(

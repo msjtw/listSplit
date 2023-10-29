@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:list_split/services/models/firestore_models.dart';
-import 'package:list_split/services/prompts/you_sure_prompt.dart';
 
 Future<Group?> groupNameChange(BuildContext context, Group group) async {
   final nameController = TextEditingController();
@@ -32,8 +31,8 @@ Future<Group?> groupNameChange(BuildContext context, Group group) async {
                 children: [
                   IconButton(
                       onPressed: () {
-                        nameController.dispose();
-                        descriptionController.dispose();
+                        // nameController.dispose();
+                        // descriptionController.dispose();
                         Navigator.pop(context);
                       },
                       icon: const Icon(Icons.cancel)),
@@ -52,23 +51,6 @@ Future<Group?> groupNameChange(BuildContext context, Group group) async {
                       icon: const Icon(Icons.done)),
                 ],
               ),
-              (group.name.isNotEmpty
-                  ? ElevatedButton.icon(
-                      onPressed: () async {
-                        await youSure(context).then(
-                          (areTheySure) {
-                            if (areTheySure == true) {
-                              Navigator.pop(context);
-                            }
-                          },
-                        );
-                      },
-                      icon: const Icon(Icons.delete),
-                      label: const Text('delete list'),
-                      style:
-                          ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                    )
-                  : Container())
             ],
           ),
         );
