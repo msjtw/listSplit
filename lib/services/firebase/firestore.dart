@@ -84,32 +84,67 @@ class FirestoreDB {
     }
   }
 
-  // Remove a Movie
-//   Future<bool> removeMovie(String movieId) async {
-//     _movies = _firestore.collection('movies');
-//     try {
-//       await _movies
-//           .doc(movieId)
-//           .delete(); // deletes the document with id of movieId from our movies collection
-//       return true; // return true after successful deletion .
-//     } catch (e) {
-//       print(e.message);
-//       return Future.error(e); // return error
-//     }
-//   }
+  Future<bool> addThing(String groupUid, FirestoreThing thing) async {
+    final ref = _firestore.collection("groups").doc(groupUid).withConverter(
+        fromFirestore: Group.fromFirestore,
+        toFirestore: (Group group, _) => group.toFirestore());
+    try {
+      await ref.update({
+        'things': FieldValue.arrayUnion([thing.toJson()])
+      });
+      return true;
+    } catch (e) {
+      return Future.error(e);
+    }
+  }
 
-// Edit a Movie
-//   Future<bool> editGroup(G, String movieId) async {
-//     _movies = _firestore.collection('movies');
-//     try {
-//       await _movies
-//           .doc(movieId)
-//           .update(// updates the movie document having id of moviedId
-//               {'name': m.movieName, 'poster': m.posterURL, 'length': m.length});
-//       return true; //// return true after successful updation .
-//     } catch (e) {
-//       print(e.message);
-//       return Future.error(e); //return error
-//     }
-//   }
+  Future<bool> removeThing(String groupUid, FirestoreThing thing) async {
+    final ref = _firestore.collection("groups").doc(groupUid).withConverter(
+        fromFirestore: Group.fromFirestore,
+        toFirestore: (Group group, _) => group.toFirestore());
+    try {
+      await ref.update({
+        'things': FieldValue.arrayRemove([thing.toJson()])
+      });
+      return true;
+    } catch (e) {
+      return Future.error(e);
+    }
+  }
+
+  Future<bool> updateThing(
+      Group group, FirestoreThing oldThing, FirestoreThing newThing) async {
+    final ref = _firestore.collection("groups").doc(group.uid).withConverter(
+        fromFirestore: Group.fromFirestore,
+        toFirestore: (Group group, _) => group.toFirestore());
+    try {
+      await ref.update({
+        'things': FieldValue.arrayRemove([oldThing.toJson()])
+      });
+      await ref.update({
+        'things': FieldValue.arrayUnion([newThing.toJson()])
+      });
+      return true;
+    } catch (e) {
+      return Future.error(e);
+    }
+  }
+
+  Future<bool> updateAllThings(Group group, List<FirestoreThing> things) async {
+    final ref = _firestore.collection("groups").doc(group.uid).withConverter(
+        fromFirestore: Group.fromFirestore,
+        toFirestore: (Group group, _) => group.toFirestore());
+    try {
+      await ref.update({
+        'things': List<dynamic>.from(
+        things.map(
+          (d) => d.toJson(),
+        ),
+      )
+      });
+      return true;
+    } catch (e) {
+      return Future.error(e);
+    }
+  }
 }

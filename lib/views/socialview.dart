@@ -45,9 +45,7 @@ class SocialView extends ConsumerStatefulWidget {
 class _SocialViewState extends ConsumerState<SocialView> {
   @override
   Widget build(BuildContext context) {
-    final groupList = ref.watch(userGroupsProvider(widget.user));
-
-    // ref.watch(firestoreProvider).userGroups(widget.user.uid);
+    final groupList = ref.watch(userGroupsProvider(widget.user.uid));
     return Scaffold(
       appBar: AppBar(
         title: const Text('Your groups'),
@@ -60,7 +58,7 @@ class _SocialViewState extends ConsumerState<SocialView> {
                       content: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text("You' logged as: \n${widget.user.email}"),
+                          Text("You're logged as: \n${widget.user.email}"),
                           const Text("Do you want to log out?"),
                         ],
                       ),

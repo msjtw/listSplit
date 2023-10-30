@@ -22,7 +22,3 @@ class _SpendingViewState extends ConsumerState<SpendingView> {
     );
   }
 }
-
-
-
-

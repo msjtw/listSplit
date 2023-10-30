@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:list_split/services/firebase/firestore.dart';
 import 'package:list_split/services/models/firestore_models.dart';
@@ -13,8 +12,8 @@ final allGroupsProvider = StreamProvider<QuerySnapshot>((ref) {
 });
 
 final userGroupsProvider = StreamProvider.autoDispose
-    .family<QuerySnapshot<Group>, User>((ref, User user) {
-  return ref.read(firestoreProvider).userGroups(user.uid);
+    .family<QuerySnapshot<Group>, String>((ref, String userUid) {
+  return ref.read(firestoreProvider).userGroups(userUid);
 });
 
 final groupProvider = StreamProvider.autoDispose

@@ -31,8 +31,6 @@ Future<Group?> groupNameChange(BuildContext context, Group group) async {
                 children: [
                   IconButton(
                       onPressed: () {
-                        // nameController.dispose();
-                        // descriptionController.dispose();
                         Navigator.pop(context);
                       },
                       icon: const Icon(Icons.cancel)),

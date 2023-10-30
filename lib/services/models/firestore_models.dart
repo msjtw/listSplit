@@ -4,24 +4,72 @@ import 'package:nanoid/nanoid.dart';
 import 'package:uuid/uuid.dart';
 
 @immutable
+class FirestoreUser {
+  final String uid;
+  final String username;
+  final List<String> lists;
+
+  FirestoreUser({required this.uid, String? username, List<String>? lists})
+      : username = username ?? '',
+        lists = lists ?? [];
+
+  factory FirestoreUser.fromFirestore(
+    DocumentSnapshot<Map<String, dynamic>> snapshot,
+    SnapshotOptions? options,
+  ) {
+    final data = snapshot.data();
+    return FirestoreUser(
+      uid: data?['uid'],
+      username: data?['username'],
+      lists: data?['lists'] is Iterable ? List.from(data?['lists']) : [],
+    );
+  }
+
+  Map<String, dynamic> toFirestore() {
+    return {
+      "uid": uid,
+      "username": username,
+      "lists": lists,
+    };
+  }
+
+  FirestoreUser copyWith({
+    String? uid,
+    String? username,
+    List<String>? lists,
+  }) {
+    return FirestoreUser(
+      uid: uid ?? this.uid,
+      username: username ?? this.username,
+      lists: lists ?? this.lists,
+    );
+  }
+
+  @override
+  String toString() {
+    return '(uid: $uid, username: $username, lists: ${lists.length}) ';
+  }
+}
+
+@immutable
 class Group {
   final String uid;
   final String name;
   final String description;
   final List<String> usersUids;
-  final List<FirestoreShoppingList> shoppingLists;
+  final List<FirestoreThing> things;
 
   Group(
       {String? uid,
       String? name,
       String? description,
       List<String>? usersUids,
-      List<FirestoreShoppingList>? shoppingLists})
+      List<FirestoreThing>? things})
       : uid = uid ?? nanoid(12),
         name = name ?? '',
         description = description ?? '',
         usersUids = usersUids ?? [],
-        shoppingLists = shoppingLists ?? [];
+        things = things ?? [];
 
   factory Group.fromFirestore(
     DocumentSnapshot<Map<String, dynamic>> snapshot,
@@ -34,10 +82,9 @@ class Group {
       description: data?['description'],
       usersUids:
           data?['usersUids'] is Iterable ? List.from(data?['usersUids']) : [],
-      shoppingLists: data?['shoppingLists'] is Iterable
-          ? List.from(data?['shoppingLists'])
-              .map((shoppinglist) =>
-                  FirestoreShoppingList.fromJson(shoppinglist))
+      things: data?['things'] is Iterable
+          ? List.from(data?['things'])
+              .map((thing) => FirestoreThing.fromJson(thing))
               .toList()
           : [],
     );
@@ -49,8 +96,8 @@ class Group {
       "name": name,
       "description": description,
       "usersUids": usersUids,
-      "shoppingLists": List<dynamic>.from(
-        shoppingLists.map(
+      "things": List<dynamic>.from(
+        things.map(
           (d) => d.toJson(),
         ),
       ),
@@ -62,14 +109,14 @@ class Group {
     String? name,
     String? description,
     List<String>? usersUids,
-    List<FirestoreShoppingList>? shoppingLists,
+    List<FirestoreThing>? things,
   }) {
     return Group(
       uid: uid ?? this.uid,
       name: name ?? this.name,
       description: description ?? this.description,
       usersUids: usersUids ?? this.usersUids,
-      shoppingLists: shoppingLists ?? this.shoppingLists,
+      things: things ?? this.things,
     );
   }
 
@@ -80,102 +127,48 @@ class Group {
 }
 
 @immutable
-class FirestoreThing {
-  final String uid;
-  final String name;
-  final int listUuid;
-  final bool bought;
-
-  FirestoreThing(
-      {required this.name,
-      required this.bought,
-      required this.listUuid,
-      String? uid})
-      : uid = uid ?? const Uuid().v4();
-
-  factory FirestoreThing.fromJson(Map<String, dynamic> data) {
-    return FirestoreThing(
-      uid: data['uid'],
-      name: data['name'],
-      listUuid: data['listUuid'],
-      bought: data['bought'],
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      "uid": uid,
-      "name": name,
-      "listUuid": listUuid,
-      "bought": bought,
-    };
-  }
-
-  FirestoreThing copyWith(
-      {String? uid, String? name, int? listUuid, bool? bought}) {
-    return FirestoreThing(
-      uid: uid ?? this.uid,
-      name: name ?? this.name,
-      listUuid: listUuid ?? this.listUuid,
-      bought: bought ?? this.bought,
-    );
-  }
-
-  @override
-  String toString() {
-    return '(uid: $uid, name: $name, list uuid: $listUuid, bought: $bought) ';
-  }
-}
-
-@immutable
 class FirestoreShoppingList {
   final String uid;
+  final String groupUid;
   final List<FirestoreThing> things;
   final String name;
   final String description;
-  final List<FirestorePastShopping> pastShoppings;
 
   FirestoreShoppingList({
     String? name,
     String? description,
     List<FirestoreThing>? things,
     String? uid,
-    List<FirestorePastShopping>? pastShoppings,
+    required this.groupUid,
   })  : name = name ?? '',
         description = description ?? 'List desctiption..',
         things = things ?? [],
-        uid = uid ?? const Uuid().v4(),
-        pastShoppings = pastShoppings ?? [];
+        uid = uid ?? const Uuid().v4();
 
-  factory FirestoreShoppingList.fromJson(Map<String, dynamic> data) {
+  factory FirestoreShoppingList.fromFirestore(
+    DocumentSnapshot<Map<String, dynamic>> snapshot,
+    SnapshotOptions? options,
+  ) {
+    final data = snapshot.data();
     return FirestoreShoppingList(
-      uid: data['uid'],
-      name: data['name'],
-      description: data['description'],
-      things: data['things'] is Iterable
-          ? List.from(data['things'])
+      uid: data?['uid'],
+      groupUid: data?['groupUid'],
+      name: data?['name'],
+      description: data?['description'],
+      things: data?['things'] is Iterable
+          ? List.from(data?['things'])
               .map((thing) => FirestoreThing.fromJson(thing))
-              .toList()
-          : [],
-      pastShoppings: data['pastShoppings'] is Iterable
-          ? List.from(data['pastShoppings'])
-              .map((pastShopping) =>
-                  FirestorePastShopping.fromJson(pastShopping))
               .toList()
           : [],
     );
   }
 
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toFirestore() {
     return {
       "uid": uid,
+      "groupUid": groupUid,
       "name": name,
       "description": description,
-      "FirestorePastShopping": List<dynamic>.from(
-        pastShoppings.map(
-          (d) => d.toJson(),
-        ),
-      ),
       "things": List<dynamic>.from(
         things.map(
           (d) => d.toJson(),
@@ -186,23 +179,71 @@ class FirestoreShoppingList {
 
   FirestoreShoppingList copyWith({
     String? uid,
+    String? groupUid,
     List<FirestoreThing>? things,
     String? name,
     String? description,
-    List<FirestorePastShopping>? pastShoppings,
   }) {
     return FirestoreShoppingList(
       uid: uid ?? this.uid,
       things: things ?? this.things,
+      groupUid: groupUid ?? this.groupUid,
       name: name ?? this.name,
       description: description ?? this.description,
-      pastShoppings: pastShoppings ?? this.pastShoppings,
     );
   }
 
   @override
   String toString() {
-    return '(uid: $uid, name: $name, things: ${things.length}, past shoppings: ${pastShoppings.length}) ';
+    return '(uid: $uid, name: $name, things: ${things.length}) ';
+  }
+}
+
+@immutable
+class FirestoreThing {
+  final String uid;
+  final String name;
+  final String groupUid;
+  final bool bought;
+
+  FirestoreThing(
+      {required this.name,
+      required this.bought,
+      required this.groupUid,
+      String? uid})
+      : uid = uid ?? const Uuid().v4();
+
+  factory FirestoreThing.fromJson(Map<String, dynamic> data) {
+    return FirestoreThing(
+      uid: data['uid'],
+      name: data['name'],
+      groupUid: data['groupUid'],
+      bought: data['bought'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      "uid": uid,
+      "name": name,
+      "groupUid": groupUid,
+      "bought": bought,
+    };
+  }
+
+  FirestoreThing copyWith(
+      {String? uid, String? name, String? groupUid, bool? bought}) {
+    return FirestoreThing(
+      uid: uid ?? this.uid,
+      name: name ?? this.name,
+      groupUid: groupUid ?? this.groupUid,
+      bought: bought ?? this.bought,
+    );
+  }
+
+  @override
+  String toString() {
+    return '(uid: $uid, name: $name, groupUid: $groupUid, bought: $bought) ';
   }
 }
 
@@ -277,19 +318,5 @@ class FirestorePastShopping {
   @override
   String toString() {
     return '(uid: $uid, name: $name, list uuid: $listUuid, things: ${things.length}, cost: $cost) ';
-  }
-}
-
-class MyWidget extends StatefulWidget {
-  const MyWidget({super.key});
-
-  @override
-  State<MyWidget> createState() => _MyWidgetState();
-}
-
-class _MyWidgetState extends State<MyWidget> {
-  @override
-  Widget build(BuildContext context) {
-    return const Placeholder();
   }
 }

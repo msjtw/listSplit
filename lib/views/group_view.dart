@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -46,6 +47,7 @@ class _GroupViewState extends ConsumerState<GroupView> {
   }
 
   Widget groupView(Group group) {
+    User user = ref.watch(firebaseAuthProvider).getUser!;
     return Scaffold(
       appBar: AppBar(
         title: Text("Group ${group.name}"),
@@ -85,7 +87,7 @@ class _GroupViewState extends ConsumerState<GroupView> {
               const SizedBox(height: 10),
               Center(
                 child: GestureDetector(
-                  onLongPress: () {
+                  onTap: () {
                     groupNameChange(context, group).then(
                       (group) {
                         if (group != null) {
@@ -127,40 +129,6 @@ class _GroupViewState extends ConsumerState<GroupView> {
                   ),
                 ),
               ),
-              const SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Shopping lists:',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.add),
-                    onPressed: () {},
-                  )
-                ],
-              ),
-              const SizedBox(height: 10),
-              Container(
-                height: 200,
-                decoration: const BoxDecoration(
-                  color: Colors.lightGreen,
-                  borderRadius: BorderRadius.all(Radius.circular(8)),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: ListView.builder(
-                    itemCount: group.shoppingLists.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return Padding(
-                        padding: const EdgeInsets.all(3.0),
-                        child: Text(group.shoppingLists[index].name),
-                      );
-                    },
-                  ),
-                ),
-              ),
               const SizedBox(height: 20),
               Center(
                 child: ElevatedButton.icon(
@@ -168,8 +136,7 @@ class _GroupViewState extends ConsumerState<GroupView> {
                     await youSure(context).then((areTheySure) {
                       if (areTheySure == true) {
                         Navigator.pop(context);
-                        ref.read(firestoreProvider).leaveGroup(
-                            ref.read(firebaseAuthProvider).getUser!, group.uid);
+                        ref.read(firestoreProvider).leaveGroup(user, group.uid);
                       }
                     });
                   },
