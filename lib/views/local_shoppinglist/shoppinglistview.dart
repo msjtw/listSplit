@@ -126,7 +126,7 @@ class _ShoppingListViewState extends ConsumerState<ShoppingListView> {
                               decoration: const BoxDecoration(
                                 borderRadius:
                                     BorderRadius.all(Radius.circular(8)),
-                                color: Colors.limeAccent,
+                                color: Colors.amber,
                               ),
                               child: Padding(
                                 padding: const EdgeInsets.all(8.0),

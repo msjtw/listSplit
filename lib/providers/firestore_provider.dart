@@ -21,6 +21,11 @@ final groupProvider = StreamProvider.autoDispose
   return ref.read(firestoreProvider).getGroup(groupUid);
 });
 
+final pastShoppingsProvider = StreamProvider.autoDispose
+    .family<QuerySnapshot<FirestorePastShopping>, String>(
+        (ref, String groupUid) {
+  return ref.read(firestoreProvider).allGroupShoppings(groupUid);
+});
 // final userName = Provider.autoDispose.family<FirestoreDB, String>((ref, String uid) {
 //   return ref.read(firestoreProvider).userName(uid);
 // });

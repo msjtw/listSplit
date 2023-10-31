@@ -115,7 +115,7 @@ class _SocialViewState extends ConsumerState<SocialView> {
                       .catchError(
                     (e) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(e)),
+                        SnackBar(content: Text(e.toString())),
                       );
                       return false;
                     },

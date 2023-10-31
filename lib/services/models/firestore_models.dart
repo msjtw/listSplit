@@ -127,79 +127,6 @@ class Group {
 }
 
 @immutable
-class FirestoreShoppingList {
-  final String uid;
-  final String groupUid;
-  final List<FirestoreThing> things;
-  final String name;
-  final String description;
-
-  FirestoreShoppingList({
-    String? name,
-    String? description,
-    List<FirestoreThing>? things,
-    String? uid,
-    required this.groupUid,
-  })  : name = name ?? '',
-        description = description ?? 'List desctiption..',
-        things = things ?? [],
-        uid = uid ?? const Uuid().v4();
-
-  factory FirestoreShoppingList.fromFirestore(
-    DocumentSnapshot<Map<String, dynamic>> snapshot,
-    SnapshotOptions? options,
-  ) {
-    final data = snapshot.data();
-    return FirestoreShoppingList(
-      uid: data?['uid'],
-      groupUid: data?['groupUid'],
-      name: data?['name'],
-      description: data?['description'],
-      things: data?['things'] is Iterable
-          ? List.from(data?['things'])
-              .map((thing) => FirestoreThing.fromJson(thing))
-              .toList()
-          : [],
-    );
-  }
-
-  Map<String, dynamic> toFirestore() {
-    return {
-      "uid": uid,
-      "groupUid": groupUid,
-      "name": name,
-      "description": description,
-      "things": List<dynamic>.from(
-        things.map(
-          (d) => d.toJson(),
-        ),
-      ),
-    };
-  }
-
-  FirestoreShoppingList copyWith({
-    String? uid,
-    String? groupUid,
-    List<FirestoreThing>? things,
-    String? name,
-    String? description,
-  }) {
-    return FirestoreShoppingList(
-      uid: uid ?? this.uid,
-      things: things ?? this.things,
-      groupUid: groupUid ?? this.groupUid,
-      name: name ?? this.name,
-      description: description ?? this.description,
-    );
-  }
-
-  @override
-  String toString() {
-    return '(uid: $uid, name: $name, things: ${things.length}) ';
-  }
-}
-
-@immutable
 class FirestoreThing {
   final String uid;
   final String name;
@@ -251,13 +178,13 @@ class FirestoreThing {
 class FirestorePastShopping {
   final String uid;
   final String name;
-  final String listUuid;
+  final String groupUid;
   final DateTime time;
   final List<FirestoreThing> things;
   final double cost;
 
   FirestorePastShopping({
-    required this.listUuid,
+    required this.groupUid,
     List<FirestoreThing>? things,
     String? uid,
     String? name,
@@ -269,26 +196,30 @@ class FirestorePastShopping {
         things = things ?? [],
         cost = cost ?? -1;
 
-  factory FirestorePastShopping.fromJson(Map<String, dynamic> data) {
+  factory FirestorePastShopping.fromFirestore(
+    DocumentSnapshot<Map<String, dynamic>> snapshot,
+    SnapshotOptions? options,
+  ) {
+    final data = snapshot.data();
     return FirestorePastShopping(
-      uid: data['uid'],
-      name: data['name'],
-      listUuid: data['listUuid'],
-      time: data['time'],
-      cost: data['cost'],
-      things: data['things'] is Iterable
-          ? List.from(data['things'])
+      uid: data?['uid'],
+      name: data?['name'],
+      groupUid: data?['groupUid'],
+      time: data?['time'].toDate(),
+      cost: data?['cost'].toDouble(),
+      things: data?['things'] is Iterable
+          ? List.from(data?['things'])
               .map((thing) => FirestoreThing.fromJson(thing))
               .toList()
           : [],
     );
   }
 
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toFirestore() {
     return {
       "uid": uid,
       "name": name,
-      "listUuid": listUuid,
+      "groupUid": groupUid,
       "time": time,
       "cost": cost,
       "things": List<dynamic>.from(
@@ -308,7 +239,7 @@ class FirestorePastShopping {
     return FirestorePastShopping(
       uid: uid ?? this.uid,
       name: name ?? this.name,
-      listUuid: listUuid,
+      groupUid: groupUid,
       time: time ?? this.time,
       things: things ?? this.things,
       cost: cost ?? this.cost,
@@ -317,6 +248,6 @@ class FirestorePastShopping {
 
   @override
   String toString() {
-    return '(uid: $uid, name: $name, list uuid: $listUuid, things: ${things.length}, cost: $cost) ';
+    return '(uid: $uid, name: $name, groupUid: $groupUid, things: ${things.length}, cost: $cost) ';
   }
 }

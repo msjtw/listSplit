@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:list_split/providers/authprovider.dart';
 import 'package:list_split/services/bnb.dart';
+import 'package:list_split/views/auth_views/register_view.dart';
 
 class LoginView extends ConsumerStatefulWidget {
   const LoginView({super.key});
@@ -97,7 +98,13 @@ class _LoginViewState extends ConsumerState<LoginView> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: TextButton.icon(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const RegisterView(),
+                          ),
+                        );
+                      },
                       icon: const Icon(Icons.badge_outlined),
                       label: const Text('create one ')),
                 )

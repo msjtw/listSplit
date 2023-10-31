@@ -21,6 +21,19 @@ class FirestoreDB {
         .snapshots();
   }
 
+  Stream<QuerySnapshot<FirestorePastShopping>> allGroupShoppings(
+      String groupUid) {
+    return _firestore
+        .collection("groups")
+        .doc(groupUid)
+        .collection('pastShoppings')
+        .withConverter(
+            fromFirestore: FirestorePastShopping.fromFirestore,
+            toFirestore: (FirestorePastShopping shopping, _) =>
+                shopping.toFirestore())
+        .snapshots();
+  }
+
   Stream<DocumentSnapshot<Group>> getGroup(String groupUid) {
     return _firestore
         .collection("groups")
@@ -137,11 +150,32 @@ class FirestoreDB {
     try {
       await ref.update({
         'things': List<dynamic>.from(
-        things.map(
-          (d) => d.toJson(),
-        ),
-      )
+          things.map(
+            (d) => d.toJson(),
+          ),
+        )
       });
+      return true;
+    } catch (e) {
+      return Future.error(e);
+    }
+  }
+
+  Future<bool> setPastShopping(FirestorePastShopping shopping) async {
+    final ref = _firestore
+        .collection("groups")
+        .doc(shopping.groupUid)
+        .collection('pastShoppings')
+        .withConverter(
+            fromFirestore: FirestorePastShopping.fromFirestore,
+            toFirestore: (FirestorePastShopping shopping, _) =>
+                shopping.toFirestore());
+    try {
+      if (shopping.things.isNotEmpty) {
+        await ref.doc(shopping.uid).set(shopping);
+      } else {
+        await ref.doc(shopping.uid).delete();
+      }
       return true;
     } catch (e) {
       return Future.error(e);

@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:list_split/providers/firestore_provider.dart';
+import 'package:list_split/services/correctcost.dart';
 import 'package:list_split/services/models/firestore_models.dart';
 
 class GroupShoppingView extends StatefulWidget {
   final Group group;
-  final List<FirestoreThing> allthings;
-  final List<FirestoreThing> rest;
-  final FirestoreThing firstThing;
+  final FirestorePastShopping shopping;
+  final bool isNew;
 
   const GroupShoppingView(
-      {required this.group,
-      required this.allthings,
-      required this.rest,
-      required this.firstThing,
+      {required this.isNew,
+      required this.group,
+      required this.shopping,
       super.key});
 
   @override
@@ -21,15 +21,16 @@ class GroupShoppingView extends StatefulWidget {
 }
 
 class _GroupShoppingViewState extends State<GroupShoppingView> {
-  List<FirestoreThing> allThings = [];
+  List<FirestoreThing> showThings = [];
 
   @override
   void initState() {
     super.initState();
 
-    allThings = widget.allthings;
-    allThings[allThings.indexOf(widget.firstThing)] =
-        widget.firstThing.copyWith(bought: true);
+    if (!widget.isNew) {
+      showThings += widget.shopping.things;
+    }
+    showThings += widget.group.things;
   }
 
   @override
@@ -52,18 +53,18 @@ class _GroupShoppingViewState extends State<GroupShoppingView> {
             const SizedBox(height: 10),
             Expanded(
               child: ListView.builder(
-                itemCount: allThings.length,
+                itemCount: showThings.length,
                 itemBuilder: (BuildContext context, int index) {
                   return GestureDetector(
                     onHorizontalDragEnd: (details) {
                       setState(() {
-                        allThings[index] = allThings[index]
-                            .copyWith(bought: !allThings[index].bought);
+                        showThings[index] = showThings[index]
+                            .copyWith(bought: !showThings[index].bought);
                       });
                     },
                     child: Row(
                       children: [
-                        allThings[index].bought
+                        showThings[index].bought
                             ? Flexible(child: Container())
                             : Container(),
                         Padding(
@@ -71,14 +72,14 @@ class _GroupShoppingViewState extends State<GroupShoppingView> {
                           child: Container(
                             padding: const EdgeInsets.all(6),
                             decoration: BoxDecoration(
-                              color: (allThings[index].bought
+                              color: (showThings[index].bought
                                   ? Colors.yellow
                                   : Colors.transparent),
                               borderRadius:
                                   const BorderRadius.all(Radius.circular(6)),
                             ),
                             child: Text(
-                              allThings[index].name,
+                              showThings[index].name,
                               style: const TextStyle(
                                 fontSize: 15,
                               ),
@@ -98,8 +99,14 @@ class _GroupShoppingViewState extends State<GroupShoppingView> {
         onPressed: () {
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (context) =>
-                  ShoppingCheckView(allThings, widget.group, widget.rest),
+              builder: (context) => ShoppingCheckView(
+                  widget.shopping.copyWith(
+                    things: showThings
+                        .where((thing) => thing.bought == true)
+                        .toList(),
+                  ),
+                  showThings.where((thing) => thing.bought == false).toList(),
+                  widget.group),
             ),
           );
         },
@@ -110,11 +117,12 @@ class _GroupShoppingViewState extends State<GroupShoppingView> {
 }
 
 class ShoppingCheckView extends ConsumerStatefulWidget {
-  final List<FirestoreThing> things;
-  final List<FirestoreThing> rest;
+  final FirestorePastShopping pastShopping;
+  final List<FirestoreThing> leftThings;
   final Group group;
 
-  const ShoppingCheckView(this.things, this.group, this.rest, {super.key});
+  const ShoppingCheckView(this.pastShopping, this.leftThings, this.group,
+      {super.key});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() =>
@@ -124,15 +132,12 @@ class ShoppingCheckView extends ConsumerStatefulWidget {
 class _ShoppingCheckViewState extends ConsumerState<ShoppingCheckView> {
   TextEditingController costController = TextEditingController();
 
-  List<FirestoreThing> boughtThings = [];
-
   @override
   void initState() {
     super.initState();
-    boughtThings =
-        widget.things.where((thing) => thing.bought == true).toList();
-    // costController.text =
-    //     widget.shopping.cost != -1 ? widget.shopping.cost.toString() : '';
+    costController.text = widget.pastShopping.cost != -1
+        ? widget.pastShopping.cost.toString()
+        : '';
   }
 
   @override
@@ -146,7 +151,7 @@ class _ShoppingCheckViewState extends ConsumerState<ShoppingCheckView> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-            'You\'ve marked ${boughtThings.length} ${boughtThings.length == 1 ? 'thing' : 'things'}'),
+            'You\'ve marked ${widget.pastShopping.things.length} ${widget.pastShopping.things.length == 1 ? 'thing' : 'things'}'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -162,30 +167,30 @@ class _ShoppingCheckViewState extends ConsumerState<ShoppingCheckView> {
                 padding: const EdgeInsets.all(8.0),
                 child: ListView.builder(
                     shrinkWrap: true,
-                    itemCount: boughtThings.length,
+                    itemCount: widget.pastShopping.things.length,
                     itemBuilder: (BuildContext context, int index) {
-                      return Text(boughtThings[index].name);
+                      return Text(widget.pastShopping.things[index].name);
                     }),
               ),
             ),
-            // Row(
-            //   children: [
-            //     const Text('add cost:'),
-            //     const SizedBox(width: 10),
-            //     SizedBox(
-            //       width: 50,
-            //       child: TextField(
-            //         controller: costController,
-            //         keyboardType:
-            //             const TextInputType.numberWithOptions(decimal: true),
-            //         inputFormatters: [
-            //           FilteringTextInputFormatter.allow(
-            //               RegExp('[0123456789,.]')),
-            //         ],
-            //       ),
-            //     )
-            //   ],
-            // ),
+            Row(
+              children: [
+                const Text('add cost:'),
+                const SizedBox(width: 10),
+                SizedBox(
+                  width: 50,
+                  child: TextField(
+                    controller: costController,
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(
+                          RegExp('[0123456789,.]')),
+                    ],
+                  ),
+                )
+              ],
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
@@ -197,9 +202,12 @@ class _ShoppingCheckViewState extends ConsumerState<ShoppingCheckView> {
                 ),
                 TextButton(
                   onPressed: () {
-                    //double? cost = correctCost(costController.text);
-                    ref.read(firestoreProvider).updateAllThings(
-                        widget.group, widget.things + widget.rest);
+                    double? cost = correctCost(costController.text);
+                    ref.read(firestoreProvider).setPastShopping(
+                        widget.pastShopping.copyWith(cost: cost));
+                    ref
+                        .read(firestoreProvider)
+                        .updateAllThings(widget.group, widget.leftThings);
                     Navigator.pop(context);
                     Navigator.pop(context);
                   },
