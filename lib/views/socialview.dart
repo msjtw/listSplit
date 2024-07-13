@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:list_split/providers/authprovider.dart';
 import 'package:list_split/providers/firestore_provider.dart';
-import 'package:list_split/services/expandable_FAB.dart';
+import 'package:list_split/services/expandable_fab.dart';
 import 'package:list_split/services/models/firestore_models.dart';
 import 'package:list_split/services/prompts/add_user_prompt.dart';
 import 'package:list_split/services/prompts/group_name_prompt.dart';
